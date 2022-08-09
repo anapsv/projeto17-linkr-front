@@ -1,37 +1,33 @@
 import styled from 'styled-components';
 import axios from 'axios';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { APIHost } from '../config/config';
 
 export default function SignUp () {
     const [data, setData] = useState({email: "", password: "", username: "", profilePic: ""});
     const navigate = useNavigate();
     const [disable, setDisable] = useState(false);
-    const [validEmail, setValidEmail] = useState(true);
-    const inputEmail = useRef();
 
     function signUp(e) {
         e.preventDefault();
         setDisable(true);
         //https://projeto-linkr17.herokuapp.com/        
-        const promise = axios.post('localhost:4000/signup', {
+        const promise = axios.post('http://localhost:4000/sign-up', {
             email: data.email,
             password: data.password,
             username: data.username,
             profilePic: data.profilePic
         })
+        if (data.email.length === 0) {
+            alert('Please fill email.')
+        }
         promise.then((res) => {
+            setData('')
             navigate('/')
         })
         promise.catch((err) => {
-            alert(err.response.data.error);
-            setValidEmail(true);
             setDisable(false);
-            if(err.response.data.error === ('User email is not available.' || 'Invalid email.')){
-                setValidEmail(false);
-                return inputEmail.current.focus();
-            };
+            alert(err.response.data.error);
         })
     }
 
@@ -39,10 +35,10 @@ export default function SignUp () {
         <Container>
             <Info>
                 <h1>linkr</h1>
-                <h2>save, share and discover the best links on the web</h2>
+                <h2>save, share and discover <br />the best links on the web</h2>
             </Info>
             <Form onSubmit={signUp}>
-                <input placeholder='e-mail' type='email' required value={data.email} onChange={e => setData({ ...data, email: e.target.value })} />
+                <input id='e-mail' placeholder='e-mail' type='email' required value={data.email} onChange={e => setData({ ...data, email: e.target.value })} />
                 <input placeholder='password' type='password' required value={data.password} onChange={e => setData({ ...data, password: e.target.value })} />
                 <input placeholder='username' type='text' required value={data.username} onChange={e => setData({ ...data, username: e.target.value })} />
                 <input placeholder='picture url' type='url' required value={data.profilePic} onChange={e => setData({ ...data, profilePic: e.target.value })} />
@@ -114,18 +110,16 @@ const Info=styled.div`
     }
 
     @media (max-width: 700px) {
-        display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
         position: absolute;
         top: 0;
         width: 70%;
         height: 30%;
+        margin: 0;
 
         h1 {
             font-size: 75px;
-            margin-bottom: -30px;
         }
 
         h2 {
@@ -184,6 +178,11 @@ const Form=styled.form`
             height: 10%;
         }
     }
+
+    input#email {
+        background-color: ${props => props.emailBackground};
+    }
+
 `
 
 const ButtonDisabled=styled.button`
