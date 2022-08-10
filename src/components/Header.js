@@ -101,8 +101,8 @@ const Header = styled.div`
 `;
 
 const Logout = styled.div`
-  height: 40px;
-  width: 120px;
+  height: 47px;
+  width: 135px;
   position: fixed;
   right: 0;
   border-radius: 0px 0px 0px 20px;
@@ -113,7 +113,9 @@ const Logout = styled.div`
 
   span {
     color: #ffffff;
-    size: 17px;
+    font-size: 17px;
+    font-family: "Lato";
+    font-weight: 700;
     cursor: pointer;
   }
 `;
