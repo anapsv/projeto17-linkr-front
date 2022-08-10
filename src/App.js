@@ -9,11 +9,14 @@ import UserContext from "./contexts/UserContext";
 
 function App() {
 
-  const [user, setUser] = useState([])
+  const [token, setToken] = useState("");
+  const [menuDisplay, setMenuDisplay] = useState(false);
+  const [user, setUser] = useState([]);
+  const contextValue = { token, setToken, menuDisplay, setMenuDisplay };
   
   return (
     <BrowserRouter>
-      <UserContext.Provider value={{ user, setUser }}>
+      <UserContext.Provider value={{ contextValue, user, setUser }}>
         <Routes>
           <Route path='/signup' element={<SignUp/>} />
         </Routes>
