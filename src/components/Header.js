@@ -6,7 +6,7 @@ import {
   deleteUserDataInLocalStorage,
 } from "../contexts/UserDataContext";
 import axios from "axios";
-import { AiOutlineUp, AiOutlineDown } from "react-icons/ai";
+import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 
 export default function Top() {
   const [{ name, profilePic, token }, setUserData] = useUserData();
@@ -50,9 +50,9 @@ export default function Top() {
         <h1>linkr</h1>
         <Avatar onClick={menu}>
           {menuDisplay ? (
-            <AiOutlineUp color="white" size="26px" />
+            <IoIosArrowUp color="white" size="26px" />
           ) : (
-            <AiOutlineDown color="white" size="26px" />
+            <IoIosArrowDown color="white" size="26px" />
           )}
           <img
             src="http://pm1.narvii.com/6422/616d22cc4500a5e6b4386304ccbe26ada6e46b1a_00.jpg"
