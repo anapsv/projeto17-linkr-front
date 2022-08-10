@@ -1,13 +1,13 @@
 import styled from "styled-components";
-import Topbar from "./Topbar";
 
+import Top from "./Header";
 import Trendings from "./Trendings";
 import Posts from "./Posts";
 
 export default function Timeline() {
   return (
     <Container>
-      <Topbar />
+      <Top />
       <TimelineContainer>
         <PostsContainer>
           <Title>timeline</Title>
