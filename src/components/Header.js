@@ -33,7 +33,7 @@ export default function Top() {
         Authorization: `Bearer ${token}`,
       },
     };
-    const requisition = axios.delete("https://localhost:4000/session", auth);
+    const requisition = axios.delete("http://localhost:4000/session", auth);
     requisition.then((response) => {
       setUserData(null);
       deleteUserDataInLocalStorage();
@@ -47,31 +47,24 @@ export default function Top() {
 
   return (
     <IconContext.Provider value={{ color: "white", size: "2em" }}>
-    <Container>
-      <Header onClick={checkMenu}>
-        <h1>linkr</h1>
-        <Avatar onClick={menu}>
-          {menuDisplay ? (
-            <IoIosArrowUp />
-          ) : (
-            <IoIosArrowDown />
-          )}
-          <img
-            src="http://pm1.narvii.com/6422/616d22cc4500a5e6b4386304ccbe26ada6e46b1a_00.jpg"
-            alt="user"
-          />
-        </Avatar>
-      </Header>
-      {menuDisplay ? (
-        <Logout>
-          <div onClick={logout}>
-            <span>Logout</span>
-          </div>
-        </Logout>
-      ) : (
-        <></>
-      )}
-    </Container>
+      <Container>
+        <Header onClick={checkMenu}>
+          <h1>linkr</h1>
+          <Avatar onClick={menu}>
+            {menuDisplay ? <IoIosArrowUp /> : <IoIosArrowDown />}
+            <img src={profilePic} alt="user" />
+          </Avatar>
+        </Header>
+        {menuDisplay ? (
+          <Logout>
+            <div onClick={logout}>
+              <span>Logout</span>
+            </div>
+          </Logout>
+        ) : (
+          <></>
+        )}
+      </Container>
     </IconContext.Provider>
   );
 }

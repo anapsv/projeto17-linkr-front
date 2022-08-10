@@ -13,7 +13,7 @@ export default function NewPost() {
     e.preventDefault();
     setLoading(true);
     const promise = axios.post(
-      "https://mywallet-13.herokuapp.com/entries",
+      "http://localhost:4000/publish",
       { link: link, description: description },
       { headers: { Authorization: `Bearer ${token}` } }
     );
