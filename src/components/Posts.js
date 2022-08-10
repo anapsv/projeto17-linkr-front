@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { HeartOutline } from "react-ionicons";
+import { IoHeartOutline } from "react-icons/io5";
 
 export default function Posts() {
   return (
@@ -9,7 +9,7 @@ export default function Posts() {
           src="https://ichef.bbci.co.uk/news/976/cpsprodpb/17638/production/_124800859_gettyimages-817514614.jpg"
           alt="profilePic"
         />
-        <HeartOutline color={"#ffffff"} height="20px" width="18px" />
+        <IoHeartOutline color={"#ffffff"} height="20px" width="18px" />
         <p>13 Likes</p>
       </LikeSection>
       <div>
