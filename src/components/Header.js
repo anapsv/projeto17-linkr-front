@@ -5,6 +5,7 @@ import {
   useUserData,
   deleteUserDataInLocalStorage,
 } from "../contexts/UserDataContext";
+import axios from "axios";
 import { AiOutlineUp, AiOutlineDown } from "react-icons/ai";
 
 export default function Top() {
@@ -26,9 +27,21 @@ export default function Top() {
   }
 
   function logout() {
-    setUserData(null);
-    deleteUserDataInLocalStorage();
-    navigate("/");
+    const auth = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const requisition = axios.delete("https://localhost:4000/session", auth);
+    requisition.then((response) => {
+      setUserData(null);
+      deleteUserDataInLocalStorage();
+      navigate("/");
+    });
+    requisition.catch((error) => {
+      alert("Ocorreu um erro");
+      console.log(error.data);
+    });
   }
 
   return (
