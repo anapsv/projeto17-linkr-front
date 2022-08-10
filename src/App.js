@@ -2,8 +2,9 @@ import "./assets/reset.css";
 import "./assets/style.css";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useState } from "react";
-import SignUp from "./components/SignUp";
-import UserContext from "./contexts/UserContext";
+import SignUp from "./components/SignUp.js";
+import SignIn from "./components/signIn.js";
+import UserContext from "./contexts/UserContext.js";
 
 
 
@@ -15,6 +16,7 @@ function App() {
     <BrowserRouter>
       <UserContext.Provider value={{ user, setUser }}>
         <Routes>
+          <Route path='/' element={<SignIn/>} />
           <Route path='/signup' element={<SignUp/>} />
         </Routes>
       </UserContext.Provider>
