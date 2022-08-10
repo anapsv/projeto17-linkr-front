@@ -1,26 +1,19 @@
 import "./assets/reset.css";
 import "./assets/style.css";
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SignUp from "./components/SignUp";
-import UserContext from "./contexts/UserContext";
-
-
+import { UserDataProvider } from "./contexts/UserDataContext";
+import Timeline from "./components/Timeline";
 
 function App() {
-
-  const [token, setToken] = useState("");
-  const [menuDisplay, setMenuDisplay] = useState(false);
-  const [user, setUser] = useState([]);
-  const contextValue = { token, setToken, menuDisplay, setMenuDisplay };
-  
   return (
     <BrowserRouter>
-      <UserContext.Provider value={{ contextValue, user, setUser }}>
+      <UserDataProvider>
         <Routes>
-          <Route path='/signup' element={<SignUp/>} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/timeline" element={<Timeline />} />
         </Routes>
-      </UserContext.Provider>
+      </UserDataProvider>
     </BrowserRouter>
   );
 }
