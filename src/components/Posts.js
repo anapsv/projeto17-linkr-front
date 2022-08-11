@@ -1,7 +1,9 @@
 import styled from "styled-components";
 import { IoHeartOutline } from "react-icons/io5";
+import { useState } from "react";
 
 export default function Posts() {
+  const [post, setPosts] = useState([]);
   return (
     <Container>
       <LikeSection>
