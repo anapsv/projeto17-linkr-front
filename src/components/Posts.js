@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import { IoHeartOutline } from "react-icons/io5";
+import { CgHeart } from "react-icons/cg";
+import { IconContext } from "react-icons";
 
 export default function Posts() {
   return (
@@ -9,7 +10,9 @@ export default function Posts() {
           src="https://ichef.bbci.co.uk/news/976/cpsprodpb/17638/production/_124800859_gettyimages-817514614.jpg"
           alt="profilePic"
         />
-        <IoHeartOutline color={"#ffffff"} height="20px" width="18px" />
+        <IconContext.Provider value={{ color: "white", size: "2em" }}>
+        <CgHeart/>
+        </IconContext.Provider>
         <p>13 Likes</p>
       </LikeSection>
       <div>
@@ -28,15 +31,15 @@ const Container = styled.div`
   height: 276px;
   background: #171717;
   border-radius: 16px;
-  margin-bottom: 15px;
-  padding: 17px;
+  margin-bottom: 16px;
+  padding: 20px;
   display: flex;
 
   h1 {
     font-family: "Lato";
     font-style: normal;
     font-weight: 400;
-    font-size: 19px;
+    font-size: 23px;
     color: #ffffff;
     margin-bottom: 10px;
   }
@@ -60,12 +63,13 @@ const LikeSection = styled.div`
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    margin-bottom: 15px;
+    margin-bottom: 19px;
   }
 
   p {
     font-family: "Lato";
     font-style: normal;
+    margin-top: 5px;
     font-weight: 400;
     font-size: 11px;
     color: #ffffff;
