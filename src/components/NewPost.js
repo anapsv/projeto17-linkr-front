@@ -3,7 +3,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useUserData } from "../contexts/UserDataContext";
 
-export default function NewPost({ posts, setPosts }) {
+export default function NewPost({ getPosts }) {
   const [loading, setLoading] = useState(false);
   const [{ profilePic, token }] = useUserData();
   const [link, setLink] = useState("");
@@ -21,8 +21,7 @@ export default function NewPost({ posts, setPosts }) {
       setLoading(false);
       setLink("");
       setDescription("");
-      setPosts([res.data, ...posts]);
-      //fazer função para atualizar timeline
+      getPosts();
     });
     promise.catch((err) => {
       setLoading(false);
