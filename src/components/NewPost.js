@@ -9,6 +9,7 @@ export default function NewPost({ getPosts }) {
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
 
+
   function publishNewPost(e) {
     e.preventDefault();
     setLoading(true);
