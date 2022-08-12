@@ -4,8 +4,49 @@ import Top from "./Header";
 import Trendings from "./Trendings";
 import Posts from "./Posts";
 import NewPost from "./NewPost";
+import { useUserData } from "../contexts/UserDataContext";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Timeline() {
+  const [{ token }] = useUserData();
+  const [publications, setPublications] = useState([]);
+  console.log(publications);
+
+  useEffect(() => {
+    const url = "http://localhost:4000/timeline";
+    const auth = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    axios
+      .get(url, auth)
+      .then((res) => {
+        setPublications(res.data);
+      })
+      .catch((error) => {
+        alert("Ocorreu um erro");
+        console.log(error.data);
+      });
+  }, []);
+
+  function RenderPosts() {
+    return publications.map((publi) => (
+      <Posts
+        key={publi.id}
+        description={publi.description}
+        link={publi.link}
+        profilePic={publi.profilePic}
+        username={publi.username}
+        urlDescription={publi.urlDescription}
+        urlImage={publi.urlImage}
+        urlTitle={publi.urlTitle}
+      />
+    ));
+  }
+
   return (
     <Container>
       <Top />
@@ -13,7 +54,7 @@ export default function Timeline() {
         <PostsContainer>
           <Title>timeline</Title>
           <NewPost />
-          <Posts />
+          <RenderPosts />
         </PostsContainer>
         <Trendings />
       </TimelineContainer>

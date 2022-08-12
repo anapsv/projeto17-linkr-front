@@ -9,7 +9,6 @@ export default function NewPost({ getPosts }) {
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
 
-
   function publishNewPost(e) {
     e.preventDefault();
     setLoading(true);
@@ -66,10 +65,12 @@ const Container = styled.div`
   display: flex;
   box-shadow: 0px 4px 4px 0px #00000040;
   margin-top: 40px;
+  margin-bottom: 30px;
+  padding: 20px;
 `;
 
 const ProfilePic = styled.div`
-  margin-top: 40px;
+  margin-right: 20px;
 
   img {
     height: 50px;
@@ -90,15 +91,27 @@ const Form = styled.form`
   flex-direction: column;
   font-family: "Lato", sans-serif;
 
-  p {
-    font-size: 20px;
+  h3 {
+    font-family: "Lato";
+    font-style: normal;
     font-weight: 300;
-    line-height: 24px;
+    font-size: 20px;
     color: #707070;
+    margin-bottom: 15px;
+  }
+
+  input {
+    background: #efefef;
+    border-radius: 5px;
+    width: 503px;
+    height: 30px;
+    padding: 7px;
+    margin-bottom: 5px;
+    border: 1px solid #efefef;
   }
 
   ::placeholder {
-    width: 500px;
+    width: 503px;
     height: 30px;
     background-color: #efefef;
     color: #949494;
@@ -109,12 +122,14 @@ const Form = styled.form`
   }
 
   textarea {
-    width: 500px;
+    width: 503px;
     height: 65px;
     background-color: #efefef;
     color: #949494;
     border-radius: 5px;
-    margin: 5px;
+    padding: 7px;
+    border: 1px solid #efefef;
+    margin-bottom: 5px;
   }
 
   button {
@@ -128,5 +143,6 @@ const Form = styled.form`
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid #1877f2;
   }
 `;
