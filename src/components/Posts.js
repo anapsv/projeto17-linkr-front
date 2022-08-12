@@ -1,16 +1,16 @@
 import styled from "styled-components";
 import { CgHeart } from "react-icons/cg";
 import { IconContext } from "react-icons";
-import { TiPencil } from "react-icons/ti";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useUserData } from "../contexts/UserDataContext";
 import NewPost from "./NewPost";
 import { CgTrashEmpty } from "react-icons/cg";
+import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 
-export default function Posts({ id, description, profilePic, username, getPosts }) {
+export default function Posts(props) {
   const [post, setPost] = useState([]);
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
@@ -19,145 +19,131 @@ export default function Posts({ id, description, profilePic, username, getPosts 
   const [{ token }] = useUserData();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const auth = { headers: { Authorization: `Bearer ${token}` }}
 
-
-  function handleEnterPress (e) {
-    if (e.key === 'Enter') {
+  function handleEnterPress(e) {
+    if (e.key === "Enter") {
       e.preventDefault();
-      updatePost();
+      // updatePost();
     }
   }
 
-  function handleEscPress (e) {
-    if (e.key === 'Escape') {
+  function handleEscPress(e) {
+    if (e.key === "Escape") {
       e.preventDefault();
       setEdit(false);
     }
   }
 
-  function deletePostById (id) {
-    setPublicationId(id);
-    setOpen(open => !open);
+  function deletePostById(publicationId) {
+    //setOpen((open) => !open);
+    console.log(publicationId);
     setLoading(true);
-    const promise = axios.delete(`http://localhost:4000/deletepost`, id, auth);
+
+    const promise = axios.delete(`http://localhost:4000/deletepost`, {
+      headers: { Authorization: `Bearer ${token}` },
+      data: {
+        publicationId,
+      },
+    });
     promise.then((res) => {
       setLoading(false);
-      getPosts();
-    })
+    });
     promise.catch((err) => {
+      console.log(err);
       setLoading(false);
-      alert('Unable to delete post. Try again!')
-    })
+      alert("Unable to delete post. Try again!");
+    });
   }
 
-  useEffect(() => {
-    if (edit) {
-      textareaRef.current.focus();
-    }
-  }, [edit]);
+  // useEffect(() => {
+  //   if (edit) {
+  //     textareaRef.current.focus();
+  //   }
+  // }, [edit]);
 
-  function updatePost () {
+  function updatePostById(id) {
     setTextArea(true);
-    const promise = axios.post('http://localhost:4000/editpost', { id, description: textareaRef.current.value }, auth);
+    console.log(id);
+    const auth = { headers: { Authorization: `Bearer ${token}` } };
+    const promise = axios.post(
+      "http://localhost:4000/editpost",
+      { id, description: textareaRef.current.value },
+      auth
+    );
     promise.then((res) => {
       setEdit(false);
-      getPosts();
-    })
+    });
     promise.catch((err) => {
-      alert('Unable to save changes. Try again!');
+      alert("Unable to save changes. Try again!");
       setTextArea(false);
-    })
-
+    });
   }
-
 
   return (
     <Container>
-      <EditSection>
-        <TiPencil  onClick={setEdit(edit => !edit)}/>
-      </EditSection>
-      <DeleteSection>
-        <CgTrashEmpty onClick={setOpen(open => !open)} />
-        <Modal 
-          open={open}
-          contentElement={(props, children) => (
-            <ModalStyle {...props}>{children}</ModalStyle>
-          )}>        
-          <Text>
-            <h4>Are you sure you want to delete this post?</h4>
-          </Text>
-          <Button>
-            <button onClick={setOpen(open => !open)} disabled={loading}>No, go back</button>
-          {loading ?
-            <Loading>
-                <ThreeDots color="#FFFFFF" width={50} />
-            </Loading>
-            :
-            <button onClick={deletePost}>Yes, delete it</button>
-          }
-          </Button>
-        </Modal>
-      </DeleteSection>
       <LikeSection>
-        <img
-          src={profilePic}
-          alt="profilePic"
-        />
+        <img src={props.profilePic} alt="profilePic" />
         <IconContext.Provider value={{ color: "white", size: "2em" }}>
-        <CgHeart/>
+          <CgHeart />
         </IconContext.Provider>
         <p>13 Likes</p>
       </LikeSection>
-      <div>
-        <NewPost getPosts={getPosts} />
-        <h1>{username}</h1>
-        { edit && post.id === publicationId ?
-          <TextArea 
-            edit={edit}
-            type="text"
-            ref={textareaRef}
-            onKeyPress={handleEnterPress}
-            onKeyDown={handleEscPress}
-            defaultValue={post.description}
-            readOnly={textArea}>
-          </TextArea>
-        :
-          <h2>
-            {description}
-          </h2>
-        }
-
-      </div>
+      <ContentSection>
+        <TopPost>
+          <h1>{props.username}</h1>
+          <div>
+            <TiPencil
+              onClick={() => updatePostById(props.id)}
+              color={"#ffffff"}
+              title={TiPencil}
+              height="16px"
+              width="16px"
+            />
+            <CgTrashEmpty
+              onClick={() => deletePostById(props.id)}
+              color={"#ffffff"}
+              title={CgTrashEmpty}
+              height="16px"
+              width="16px"
+            />
+          </div>
+        </TopPost>
+        <h2>
+          {edit && post.id === publicationId ? (
+            <TextArea
+              edit={edit}
+              type="text"
+              ref={textareaRef}
+              onKeyPress={handleEnterPress}
+              onKeyDown={handleEscPress}
+              defaultValue={props.description}
+              readOnly={textArea}
+            ></TextArea>
+          ) : (
+            <h2>{props.description}</h2>
+          )}
+        </h2>
+        <LinkMetadata>
+          <LinkInformation>
+            <LinkTitle>{props.urlTitle}</LinkTitle>
+            <LinkDescription>{props.urlDescription}</LinkDescription>
+            <LinkUrl>{props.link}</LinkUrl>
+          </LinkInformation>
+          <LinkImage src={props.urlImage} />
+        </LinkMetadata>
+      </ContentSection>
     </Container>
   );
 }
 
 const Container = styled.div`
   width: 611px;
-  height: 276px;
+  height: auto;
   background: #171717;
   border-radius: 16px;
   margin-bottom: 16px;
   padding: 20px;
   display: flex;
-
-  h1 {
-    font-family: "Lato";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 23px;
-    color: #ffffff;
-    margin-bottom: 10px;
-  }
-
-  h2 {
-    font-weight: 400;
-    font-size: 17px;
-    color: #b7b7b7;
-    font-family: "Lato";
-    margin-bottom: 10px;
-  }
 `;
 
 const LikeSection = styled.div`
@@ -185,28 +171,89 @@ const LikeSection = styled.div`
   }
 `;
 
-const TextArea=styled.textarea`
+const TextArea = styled.textarea`
   width: 505px;
   height: 45px;
   border: none;
   border-radius: 5px;
-  background-color: ${(props) => (props.edit ? '#FFFFFF' : '#171717')}
-`
+  background-color: ${(props) => (props.edit ? "#FFFFFF" : "#171717")};
+`;
 
-const EditSection=styled.div`
-`
+const TopPost = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
-const DeleteSection=styled.div`
-`
+const DeleteSection = styled.div``;
 
-const Loading=styled.div`
-`
+const Loading = styled.div``;
 
-const ModalStyle=styled.div`
-`
+const ModalStyle = styled.div``;
 
-const Text=styled.h2`
-`
+const Text = styled.h2``;
 
-const Button=styled.div`
-`
+const Button = styled.div``;
+
+const ContentSection = styled.div`
+  h1 {
+    font-family: "Lato";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 23px;
+    color: #ffffff;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-weight: 400;
+    font-size: 17px;
+    color: #b7b7b7;
+    font-family: "Lato";
+    margin-bottom: 10px;
+  }
+`;
+
+const LinkMetadata = styled.div`
+  width: 503px;
+  height: 155px;
+  border: 1px solid #4d4d4d;
+  border-radius: 11px;
+  display: flex;
+`;
+
+const LinkInformation = styled.div`
+  padding: 20px;
+`;
+
+const LinkTitle = styled.div`
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  color: #cecece;
+  margin-bottom: 10px;
+`;
+
+const LinkDescription = styled.div`
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 11px;
+  color: #9b9595;
+  margin-bottom: 10px;
+`;
+
+const LinkUrl = styled.div`
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 11px;
+  color: #cecece;
+`;
+
+const LinkImage = styled.img`
+  width: 153.44px;
+  height: 155px;
+  border-radius: 0px 12px 13px 0px;
+`;
