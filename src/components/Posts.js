@@ -11,7 +11,7 @@ export default function Posts() {
           alt="profilePic"
         />
         <IconContext.Provider value={{ color: "white", size: "2em" }}>
-        <CgHeart/>
+          <CgHeart />
         </IconContext.Provider>
         <p>13 Likes</p>
       </LikeSection>
