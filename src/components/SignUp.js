@@ -103,6 +103,8 @@ const Container = styled.div`
     background-color: #1877f2;
     border-radius: 5px;
     border: none;
+    justify-content: center;
+    align-items: center;
   }
 
   @media (max-width: 700px) {
