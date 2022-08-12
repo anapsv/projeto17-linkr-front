@@ -145,4 +145,9 @@ const LikeSection = styled.div`
 `;
 
 const TextArea=styled.textarea`
+  width: 505px;
+  height: 45px;
+  border: none;
+  border-radius: 5px;
+  background-color: ${(props) => (props.edit ? '#FFFFFF' : '#171717')}
 `
