@@ -25,6 +25,7 @@ export default function SignIn() {
 
     promise.then((res) => {
       //fazer algo com o token
+      console.log(res.data);
       setUserData(res.data);
       saveUserDataInLocalStorage(res.data);
       navigate("/timeline");
