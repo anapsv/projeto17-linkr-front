@@ -1,13 +1,11 @@
 import styled from "styled-components";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  useUserData,
-  deleteUserDataInLocalStorage,
-} from "../contexts/UserDataContext";
+import { useUserData, deleteUserDataInLocalStorage } from "../contexts/UserDataContext";
 import axios from "axios";
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 import { IconContext } from "react-icons";
+import { DebounceInput } from "react-debounce-input";
 
 export default function Top() {
   const [{ name, profilePic, token }, setUserData] = useUserData();
@@ -50,6 +48,7 @@ export default function Top() {
       <Container>
         <Header onClick={checkMenu}>
           <h1>linkr</h1>
+          <DebounceInput type={"search"} placeholder={"Search for people"} minLength={3} debounceTimeout={300}/>
           <Avatar onClick={menu}>
             {menuDisplay ? <IoIosArrowUp /> : <IoIosArrowDown />}
             <img src={profilePic} alt="user" />
@@ -83,6 +82,17 @@ const Container = styled.div`
     font-size: 49px;
     line-height: 54px;
     color: #ffffff;
+  }
+
+  input {
+    width: 564px;
+    height: 45px;
+    border-radius: 8px;
+    font-size: 19px;
+    font-family: "Lato";
+    font-weight: 400;
+    border-style: none;
+    outline: none;
   }
 
   img {
