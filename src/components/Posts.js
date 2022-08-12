@@ -201,3 +201,12 @@ const DeleteSection=styled.div`
 
 const Loading=styled.div`
 `
+
+const ModalStyle=styled.div`
+`
+
+const Text=styled.h2`
+`
+
+const Button=styled.div`
+`
