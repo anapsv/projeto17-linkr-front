@@ -1,10 +1,63 @@
 import styled from "styled-components";
 import { CgHeart } from "react-icons/cg";
-import { IconContext } from "react-icons";
+import { IconContext, TiPencil } from "react-icons";
+import { useState, useRef } from "react";
+import axios from "axios";
+import { useUserData } from "../contexts/UserDataContext";
+import NewPost from "./NewPost";
 
 export default function Posts() {
+  const [posts, setPosts] = useState([]);
+  const [post, setPosts] = useState([]);
+  const [edit, setEdit] = useState(false);
+  const [textArea, setTextArea] = useState(false);
+  const [publicationId, setPublicationId] = useState("");
+  const textareaRef = useRef("");
+  const [{ token }] = useUserData();
+
+  function getPosts () {
+    console.log('oi');
+  }
+
+  function handleEnterPress (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      updatePost();
+    }
+  }
+
+  function handleEscPress (e) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setEdit(false);
+    }
+  }
+
+  useEffect(() => {
+    if (edit) {
+      textareaRef.current.focus();
+    }
+  }, [edit]);
+
+  function updatePost () {
+    setTextArea(true);
+    const promise = axios.post('http://localhost:4000/editpost', { publicationId, description: textareaRef.current.value }, { headers: { Authorization: `Bearer ${token}` }});
+    promise.then((res) => {
+      setEdit(false);
+      getPosts();
+    })
+    promise.catch((err) => {
+      alert('Unable to save changes. Try again!');
+      setTextArea(false);
+    })
+
+  }
+
   return (
     <Container>
+      <EditSection>
+        <TiPencil  onClick={setEdit(edit => !edit)}/>
+      </EditSection>
       <LikeSection>
         <img
           src="https://ichef.bbci.co.uk/news/976/cpsprodpb/17638/production/_124800859_gettyimages-817514614.jpg"
@@ -16,11 +69,25 @@ export default function Posts() {
         <p>13 Likes</p>
       </LikeSection>
       <div>
+        <NewPost getPosts={getPosts} />
         <h1>Juvenal Juvêncio</h1>
-        <h2>
-          Muito maneiro esse tutorial de Material UI com React, deem uma olhada!
-          #React #material
-        </h2>
+        { edit && post.postId === publicationId ?
+          <TextArea 
+            edit={edit}
+            type="text"
+            ref={textareaRef}
+            onKeyPress={handleEnterPress}
+            onKeyDown={handleEscPress}
+            defaultValue={post.description}
+            readOnly={enableTextArea}>
+          </TextArea>
+        :
+          <h2>
+            Muito maneiro esse tutorial de Material UI com React, deem uma olhada!
+            #React #material
+          </h2>
+        }
+
       </div>
     </Container>
   );
@@ -77,3 +144,11 @@ const LikeSection = styled.div`
     justify-content: center;
   }
 `;
+
+const TextArea=styled.textarea`
+  width: 505px;
+  height: 45px;
+  border: none;
+  border-radius: 5px;
+  background-color: ${(props) => (props.edit ? '#FFFFFF' : '#171717')}
+`
