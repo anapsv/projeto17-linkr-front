@@ -10,7 +10,7 @@ import { CgTrashEmpty } from "react-icons/cg";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 
-export default function Posts({ key, description, profilePic, username, getPosts }) {
+export default function Posts({ id, description, profilePic, username, getPosts }) {
   const [post, setPost] = useState([]);
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
@@ -21,9 +21,6 @@ export default function Posts({ key, description, profilePic, username, getPosts
   const [loading, setLoading] = useState(false);
   const auth = { headers: { Authorization: `Bearer ${token}` }}
 
-  function getPosts () {
-    console.log('oi');
-  }
 
   function handleEnterPress (e) {
     if (e.key === 'Enter') {
@@ -39,6 +36,21 @@ export default function Posts({ key, description, profilePic, username, getPosts
     }
   }
 
+  function deletePostById (id) {
+    setPublicationId(id);
+    setOpen(open => !open);
+    setLoading(true);
+    const promise = axios.delete(`http://localhost:4000/deletepost`, id, auth);
+    promise.then((res) => {
+      setLoading(false);
+      getPosts();
+    })
+    promise.catch((err) => {
+      setLoading(false);
+      alert('Unable to delete post. Try again!')
+    })
+  }
+
   useEffect(() => {
     if (edit) {
       textareaRef.current.focus();
@@ -47,7 +59,7 @@ export default function Posts({ key, description, profilePic, username, getPosts
 
   function updatePost () {
     setTextArea(true);
-    const promise = axios.post('http://localhost:4000/editpost', { key, description: textareaRef.current.value }, auth);
+    const promise = axios.post('http://localhost:4000/editpost', { id, description: textareaRef.current.value }, auth);
     promise.then((res) => {
       setEdit(false);
       getPosts();
@@ -59,18 +71,6 @@ export default function Posts({ key, description, profilePic, username, getPosts
 
   }
 
-  function deletePost () {
-    setLoading(true);
-    const promise = axios.delete(`http://localhost:4000/deletepost/${key}`, auth);
-    promise.then((res) => {
-      setLoading(false);
-      getPosts();
-    })
-    promise.catch((err) => {
-      setLoading(false);
-      alert('Unable to delete post. Try again!')
-    })
-  }
 
   return (
     <Container>
@@ -112,7 +112,7 @@ export default function Posts({ key, description, profilePic, username, getPosts
       <div>
         <NewPost getPosts={getPosts} />
         <h1>{username}</h1>
-        { edit && post.key === publicationId ?
+        { edit && post.id === publicationId ?
           <TextArea 
             edit={edit}
             type="text"
