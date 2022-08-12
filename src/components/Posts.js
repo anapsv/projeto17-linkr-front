@@ -7,6 +7,7 @@ import { useUserData } from "../contexts/UserDataContext";
 import NewPost from "./NewPost";
 
 export default function Posts() {
+  const [posts, setPosts] = useState([]);
   const [post, setPosts] = useState([]);
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
