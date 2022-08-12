@@ -1,18 +1,26 @@
 import styled from "styled-components";
 import { CgHeart } from "react-icons/cg";
-import { IconContext, TiPencil } from "react-icons";
-import { useState, useRef } from "react";
+import { IconContext } from "react-icons";
+import { TiPencil } from "react-icons/ti";
+import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useUserData } from "../contexts/UserDataContext";
 import NewPost from "./NewPost";
+import { CgTrashEmpty } from "react-icons/cg";
+import Modal from "react-modal";
+import { ThreeDots } from "react-loader-spinner";
 
 export default function Posts() {
-  const [posts, setPosts] = useState([]);
+  const [post, setPost] = useState([]);
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
   const [publicationId, setPublicationId] = useState("");
   const textareaRef = useRef("");
   const [{ token }] = useUserData();
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const auth = { headers: { Authorization: `Bearer ${token}` }}
+  const postId = 1;
 
   function getPosts () {
     console.log('oi');
@@ -40,7 +48,7 @@ export default function Posts() {
 
   function updatePost () {
     setTextArea(true);
-    const promise = axios.post('http://localhost:4000/editpost', { publicationId, description: textareaRef.current.value }, { headers: { Authorization: `Bearer ${token}` }});
+    const promise = axios.post('http://localhost:4000/editpost', { publicationId, description: textareaRef.current.value }, auth);
     promise.then((res) => {
       setEdit(false);
       getPosts();
@@ -52,11 +60,27 @@ export default function Posts() {
 
   }
 
+  function deletePost () {
+    setLoading(true);
+    const promise = axios.delete(`http://localhost:4000/deletepost/${postId}`, auth);
+    promise.then((res) => {
+      setLoading(false);
+      getPosts();
+    })
+    promise.catch((err) => {
+      setLoading(false);
+      alert('Unable to delete post. Try again!')
+    })
+  }
+
   return (
     <Container>
       <EditSection>
         <TiPencil  onClick={setEdit(edit => !edit)}/>
       </EditSection>
+      <DeleteSection>
+        <CgTrashEmpty onClick={setOpen(open => !open)} />
+      </DeleteSection>
       <LikeSection>
         <img
           src="https://ichef.bbci.co.uk/news/976/cpsprodpb/17638/production/_124800859_gettyimages-817514614.jpg"
@@ -78,7 +102,7 @@ export default function Posts() {
             onKeyPress={handleEnterPress}
             onKeyDown={handleEscPress}
             defaultValue={post.description}
-            readOnly={enableTextArea}>
+            readOnly={textArea}>
           </TextArea>
         :
           <h2>
@@ -150,4 +174,10 @@ const TextArea=styled.textarea`
   border: none;
   border-radius: 5px;
   background-color: ${(props) => (props.edit ? '#FFFFFF' : '#171717')}
+`
+
+const EditSection=styled.div`
+`
+
+const DeleteSection=styled.div`
 `
