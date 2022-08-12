@@ -1,10 +1,14 @@
 import styled from "styled-components";
 import { CgHeart } from "react-icons/cg";
 import { IconContext } from "react-icons";
+import { useState } from "react";
+import NewPost from "./NewPost";
 
 export default function Posts() {
+  const [posts, setPosts] = useState([]);
   return (
     <Container>
+      <NewPost posts={posts} setPosts={setPosts} />
       <LikeSection>
         <img
           src="https://ichef.bbci.co.uk/news/976/cpsprodpb/17638/production/_124800859_gettyimages-817514614.jpg"
