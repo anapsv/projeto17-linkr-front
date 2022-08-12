@@ -10,7 +10,7 @@ import { CgTrashEmpty } from "react-icons/cg";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 
-export default function Posts({ key, description, profilePic, username }) {
+export default function Posts({ key, description, profilePic, username, getPosts }) {
   const [post, setPost] = useState([]);
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
