@@ -10,7 +10,7 @@ import { CgTrashEmpty } from "react-icons/cg";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 
-export default function Posts() {
+export default function Posts({ key, description, profilePic, username }) {
   const [post, setPost] = useState([]);
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
@@ -20,7 +20,6 @@ export default function Posts() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const auth = { headers: { Authorization: `Bearer ${token}` }}
-  const postId = 1;
 
   function getPosts () {
     console.log('oi');
@@ -48,7 +47,7 @@ export default function Posts() {
 
   function updatePost () {
     setTextArea(true);
-    const promise = axios.post('http://localhost:4000/editpost', { publicationId, description: textareaRef.current.value }, auth);
+    const promise = axios.post('http://localhost:4000/editpost', { key, description: textareaRef.current.value }, auth);
     promise.then((res) => {
       setEdit(false);
       getPosts();
@@ -62,7 +61,7 @@ export default function Posts() {
 
   function deletePost () {
     setLoading(true);
-    const promise = axios.delete(`http://localhost:4000/deletepost/${postId}`, auth);
+    const promise = axios.delete(`http://localhost:4000/deletepost/${key}`, auth);
     promise.then((res) => {
       setLoading(false);
       getPosts();
@@ -80,10 +79,29 @@ export default function Posts() {
       </EditSection>
       <DeleteSection>
         <CgTrashEmpty onClick={setOpen(open => !open)} />
+        <Modal 
+          open={open}
+          contentElement={(props, children) => (
+            <ModalStyle {...props}>{children}</ModalStyle>
+          )}>        
+          <Text>
+            <h4>Are you sure you want to delete this post?</h4>
+          </Text>
+          <Button>
+            <button onClick={setOpen(open => !open)} disabled={loading}>No, go back</button>
+          {loading ?
+            <Loading>
+                <ThreeDots color="#FFFFFF" width={50} />
+            </Loading>
+            :
+            <button onClick={deletePost}>Yes, delete it</button>
+          }
+          </Button>
+        </Modal>
       </DeleteSection>
       <LikeSection>
         <img
-          src="https://ichef.bbci.co.uk/news/976/cpsprodpb/17638/production/_124800859_gettyimages-817514614.jpg"
+          src={profilePic}
           alt="profilePic"
         />
         <IconContext.Provider value={{ color: "white", size: "2em" }}>
@@ -93,8 +111,8 @@ export default function Posts() {
       </LikeSection>
       <div>
         <NewPost getPosts={getPosts} />
-        <h1>Juvenal Juvêncio</h1>
-        { edit && post.postId === publicationId ?
+        <h1>{username}</h1>
+        { edit && post.key === publicationId ?
           <TextArea 
             edit={edit}
             type="text"
@@ -106,8 +124,7 @@ export default function Posts() {
           </TextArea>
         :
           <h2>
-            Muito maneiro esse tutorial de Material UI com React, deem uma olhada!
-            #React #material
+            {description}
           </h2>
         }
 
@@ -180,4 +197,7 @@ const EditSection=styled.div`
 `
 
 const DeleteSection=styled.div`
+`
+
+const Loading=styled.div`
 `
