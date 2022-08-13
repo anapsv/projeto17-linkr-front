@@ -9,8 +9,11 @@ import { CgTrashEmpty } from "react-icons/cg";
 import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
+import { useNavigate } from "react-router-dom";
 
 export default function Posts(props) {
+  const navigate = useNavigate();
+
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
   const textareaRef = useRef("");
@@ -115,7 +118,9 @@ export default function Posts(props) {
       </LikeSection>
       <ContentSection>
         <TopPost>
-          <h1>{props.username}</h1>
+          <h1 onClick={() => navigate("/user/" + props.userId)}>
+            {props.username}
+          </h1>
           <div>
             <TiPencil
               onClick={() => updatePostById(props.id)}
@@ -309,6 +314,7 @@ const ContentSection = styled.div`
     font-size: 23px;
     color: #ffffff;
     margin-bottom: 10px;
+    cursor: pointer;
   }
 
   h2 {
