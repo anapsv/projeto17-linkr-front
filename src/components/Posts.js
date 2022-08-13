@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { CgHeart } from "react-icons/cg";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { IconContext } from "react-icons";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
@@ -9,6 +9,7 @@ import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 import { useNavigate } from "react-router-dom";
+import { func } from "joi";
 
 export default function Posts(props) {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export default function Posts(props) {
   const [modalIsOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [enterPress, setEnterPress] = useState(false);
+  const [isLike, setIsLike] = useState(false);
 
   function handleEnterPress(e) {
     setEnterPress(true);
@@ -106,13 +108,46 @@ export default function Posts(props) {
     });
   }
 
+  function Like(id) {
+    setIsLike(!isLike);
+
+    const url = `http://localhost:4000/likes/${id}`;
+    const auth = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    if (isLike) {
+      axios
+        .post(url, auth)
+        .then((res) => {})
+        .catch((error) => {
+          console.log(error.data);
+        });
+    } else {
+      axios
+        .delete(url, auth)
+        .then((res) => {})
+        .catch((error) => {
+          console.log(error.data);
+        });
+    }
+  }
+
   return (
     <Container>
       <LikeSection>
         <img src={props.profilePic} alt="profilePic" />
-        <IconContext.Provider value={{ color: "white", size: "2em" }}>
-          <CgHeart />
-        </IconContext.Provider>
+        {isLike ? (
+          <IconContext.Provider value={{ color: "red", size: "1.5em" }}>
+            <FaHeart onClick={() => Like(props.id)} />
+          </IconContext.Provider>
+        ) : (
+          <IconContext.Provider value={{ color: "white", size: "1.5em" }}>
+            <FaRegHeart onClick={() => Like(props.id)} />
+          </IconContext.Provider>
+        )}
         <p>13 Likes</p>
       </LikeSection>
       <ContentSection>
