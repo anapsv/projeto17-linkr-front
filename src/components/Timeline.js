@@ -12,12 +12,14 @@ export default function Timeline() {
   const [{ token }] = useUserData();
   const [publications, setPublications] = useState([]);
   console.log(publications);
+  const [isLoading, setIsLoading] = useState(false);
 
   function getPosts() {
     return "oi";
   }
 
   useEffect(() => {
+    setIsLoading(true);
     const url = "http://localhost:4000/timeline";
     const auth = {
       headers: {
@@ -28,6 +30,7 @@ export default function Timeline() {
     axios
       .get(url, auth)
       .then((res) => {
+        setIsLoading(false);
         setPublications(res.data);
       })
       .catch((error) => {
@@ -54,6 +57,17 @@ export default function Timeline() {
     ));
   }
 
+  function Loading() {
+    if (isLoading) {
+      return <p>Loading...</p>;
+    }
+    if (!isLoading && publications.length === 0) {
+      return <p>There are no posts yes</p>;
+    } else {
+      return <RenderPosts />;
+    }
+  }
+
   return (
     <Container>
       <Top />
@@ -61,7 +75,7 @@ export default function Timeline() {
         <PostsContainer>
           <Title>timeline</Title>
           <NewPost getPosts={getPosts} />
-          <RenderPosts />
+          <Loading />
         </PostsContainer>
         <Trendings />
       </TimelineContainer>
@@ -91,4 +105,16 @@ const Title = styled.div`
   margin-bottom: 43px;
 `;
 
-const PostsContainer = styled.div``;
+const PostsContainer = styled.div`
+  > p {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    font-size: 40px;
+    margin-top: 100px;
+    color: #ffffff;
+    font-family: "Oswald", sans-serif;
+    font-weight: bold;
+  }
+`;
