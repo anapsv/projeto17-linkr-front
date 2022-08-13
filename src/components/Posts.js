@@ -11,19 +11,18 @@ import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 
 export default function Posts(props) {
-  const [post, setPost] = useState([]);
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
-  const [publicationId, setPublicationId] = useState("");
-  const textareaRef = useRef("");
+  const textareaRef = useRef(null);
   const [{ token }] = useUserData();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const auth = { headers: { Authorization: `Bearer ${token}` } };
 
   function handleEnterPress(e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      // updatePost();
+      updatePostById();
     }
   }
 
@@ -31,16 +30,55 @@ export default function Posts(props) {
     if (e.key === "Escape") {
       e.preventDefault();
       setEdit(false);
+      setTextArea(false);
     }
   }
 
-  function deletePostById(publicationId) {
-    //setOpen((open) => !open);
-    console.log(publicationId);
-    setLoading(true);
+  useEffect(() => {
+    document.addEventListener('keydown', handleEscPress, true);
+  }, [])
+  
+  const toggleEditing = () => {
+    setEdit(!edit);
+    setTextArea(!textArea);
+  };
 
+  function updatePost (publicationId) {
+    toggleEditing();
+    updatePostById(publicationId);
+  }
+
+
+  useEffect(() => {
+    if (edit) {
+      textareaRef.current.focus();
+    }
+  }, [edit]);
+
+  function updatePostById(publicationId) {
+    const promise = axios.post(
+      "http://localhost:4000/editpost",
+      { publicationId, description: textareaRef.current.value },
+      auth
+    );
+    promise.then((res) => {
+      setEdit(false);
+      //atualizar a página
+    });
+    promise.catch((err) => {
+      alert("Unable to save changes. Try again!");
+      setTextArea(false);
+    });
+  }
+
+
+
+
+  function deletePostById(publicationId) {
+    setOpen((open) => !open);
+    setLoading(true);
     const promise = axios.delete(`http://localhost:4000/deletepost`, {
-      headers: { Authorization: `Bearer ${token}` },
+      auth,
       data: {
         publicationId,
       },
@@ -55,29 +93,8 @@ export default function Posts(props) {
     });
   }
 
-  // useEffect(() => {
-  //   if (edit) {
-  //     textareaRef.current.focus();
-  //   }
-  // }, [edit]);
 
-  function updatePostById(id) {
-    setTextArea(true);
-    console.log(id);
-    const auth = { headers: { Authorization: `Bearer ${token}` } };
-    const promise = axios.post(
-      "http://localhost:4000/editpost",
-      { id, description: textareaRef.current.value },
-      auth
-    );
-    promise.then((res) => {
-      setEdit(false);
-    });
-    promise.catch((err) => {
-      alert("Unable to save changes. Try again!");
-      setTextArea(false);
-    });
-  }
+
 
   return (
     <Container>
@@ -93,11 +110,12 @@ export default function Posts(props) {
           <h1>{props.username}</h1>
           <div>
             <TiPencil
-              onClick={() => updatePostById(props.id)}
+              onClick={() => updatePost(props.id)}
               color={"#ffffff"}
               title={TiPencil}
               height="16px"
               width="16px"
+              onKeyDown={handleEscPress}
             />
             <CgTrashEmpty
               onClick={() => deletePostById(props.id)}
@@ -108,21 +126,17 @@ export default function Posts(props) {
             />
           </div>
         </TopPost>
-        <h2>
-          {edit && post.id === publicationId ? (
+          {textArea ? (
             <TextArea
-              edit={edit}
+              bg={true}
               type="text"
               ref={textareaRef}
               onKeyPress={handleEnterPress}
-              onKeyDown={handleEscPress}
               defaultValue={props.description}
-              readOnly={textArea}
             ></TextArea>
           ) : (
             <h2>{props.description}</h2>
           )}
-        </h2>
         <LinkMetadata>
           <LinkInformation>
             <LinkTitle>{props.urlTitle}</LinkTitle>
@@ -174,9 +188,15 @@ const LikeSection = styled.div`
 const TextArea = styled.textarea`
   width: 505px;
   height: 45px;
+  padding: 10px;
   border: none;
   border-radius: 5px;
-  background-color: ${(props) => (props.edit ? "#FFFFFF" : "#171717")};
+  background-color: ${(props) => (props.bg ? "#FFFFFF" : "#171717")};
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  color: #9b9595;
 `;
 
 const TopPost = styled.div`
