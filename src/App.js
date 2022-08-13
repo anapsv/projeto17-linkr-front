@@ -16,6 +16,7 @@ function App() {
           <Route path='/' element={<SignIn/>} />
           <Route path='/signup' element={<SignUp/>} />
           <Route path="/timeline" element={<Timeline />} />
+{/*           <Route path="/hashtag/:hashtag" element={< Hashtag/>} /> */}
         </Routes>
       </UserDataProvider>
     </BrowserRouter>
