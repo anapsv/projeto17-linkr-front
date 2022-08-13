@@ -1,18 +1,112 @@
 import styled from "styled-components";
-import axios from "axios";
-import { useState } from "react";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { IconContext } from "react-icons";
+import { useState, useRef, useEffect } from "react";
+import axios from "axios";
 import { useUserData } from "../contexts/UserDataContext";
+import NewPost from "./NewPost";
+import { CgTrashEmpty } from "react-icons/cg";
+import { TiPencil } from "react-icons/ti";
+import Modal from "react-modal";
+import { ThreeDots } from "react-loader-spinner";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import ReactTooltip from 'react-tooltip';
-import { useEffect } from "react";
 
-export default function Posts({ publication }) {
-
+export default function Posts(props) {
+  const [edit, setEdit] = useState(false);
+  const [textArea, setTextArea] = useState(false);
+  const textareaRef = useRef("");
+  const [{ token }] = useUserData();
+  const [modalIsOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [enterPress, setEnterPress] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(0);
-  const [{ token }] = useUserData();
   const [names, setNames] = useState([]);
+
+  function handleEnterPress(e) {
+    setEnterPress(true);
+    if (e.key === "Enter") {
+      e.preventDefault();
+      updatePostById(props.id);
+    }
+  }
+
+  function handleEscPress(e) {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setEdit(false);
+      setTextArea(false);
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleEscPress, true);
+  }, []);
+
+  const toggleEditing = () => {
+    setEdit(!edit);
+    setTextArea(!textArea);
+  };
+
+  useEffect(() => {
+    if (edit) {
+      textareaRef.current.focus();
+    }
+  }, [edit]);
+
+  function updatePostById(publicationId) {
+    toggleEditing();
+    console.log(enterPress);
+    if (enterPress) {
+      const promise = axios.post(
+        "http://localhost:4000/editpost",
+        {
+          publicationId,
+          description: textareaRef.current.value,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      promise.then((res) => {
+        props.fetchPosts();
+        setEnterPress(false);
+      });
+      promise.catch((err) => {
+        alert("Unable to save changes. Try again!");
+        setTextArea(false);
+        setEnterPress(false);
+      });
+    }
+  }
+
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
+  function deletePostById(publicationId) {
+    setLoading(true);
+    const promise = axios.delete(`http://localhost:4000/deletepost`, {
+      headers: { Authorization: `Bearer ${token}` },
+      data: {
+        publicationId,
+      },
+    });
+    promise.then((res) => {
+      setLoading(false);
+      props.fetchPosts();
+      setIsOpen(false);
+    });
+    promise.catch((err) => {
+      console.log(err);
+      setLoading(false);
+      alert("Unable to delete post. Try again!");
+    });
+  }
 
   const config = {
     headers: {
@@ -21,9 +115,9 @@ export default function Posts({ publication }) {
   };
 
   useEffect(() => {
-    const promise = axios.get(`http://localhost:4000/like/${publication.id}`, config);
-    const promise2 = axios.get(`http://localhost:4000/like/count/${publication.id}`);
-    const promise3 = axios.get(`http://localhost:4000/likes/names/${publication.id}`, config);
+    const promise = axios.get(`http://localhost:4000/like/${props.id}`, config);
+    const promise2 = axios.get(`http://localhost:4000/like/count/${props.id}`);
+    const promise3 = axios.get(`http://localhost:4000/like/names/${props.id}`, config);
     promise.then((response) => {
       if (response.data) {
         setIsLiked(true);
@@ -43,19 +137,19 @@ export default function Posts({ publication }) {
     });
 
     promise2.catch((error) => {
-      console.error("error");
+      //console.error("error");
     });
 
     promise3.catch((error) => {
-      console.error("error");
+      //console.error("error");
     });
-  }, [publication]);
+  }, []);
 
   function like() {
     const promise = axios.post(
       `http://localhost:4000/like`,
       {
-        publicationId: publication.id,
+        publicationId: props.id,
       },
       config
     );
@@ -70,35 +164,34 @@ export default function Posts({ publication }) {
       console.error("error");
     });
 
-    const promise2 = axios.get(
-      `http://localhost:4000/likes/names/${publication.id}`,
-      config
-    );
-    promise2.then((response) => {
-      const nameResponse = response.data;
-      setNames(nameResponse);
-    });
-    promise2.catch((error) => {
-      console.error("error");
-    });
+    // const promise2 = axios.get(
+    //   `http://localhost:4000/like/names/${props.id}`,
+    //   config
+    // );
+    // promise2.then((response) => {
+    //   const nameResponse = response.data;
+    //   setNames(nameResponse);
+    // });
+    // promise2.catch((error) => {
+    //   //console.error("error");
+    // });
   }
 
   function dislike() {
     const promise = axios.delete(
-      `http://localhost:4000/likes/${publication.id}`,
-      config
+      `http://localhost:4000/like`, { config, data: { publicationId: props.id } },
     );
+    console.log(props.id);
     promise.then((response) => {
       if (response.status === 200) {
         setIsLiked(false);
         setLikes(likes - 1);
         const promise2 = axios.get(
-          `http://localhost:4000/likes/names/${publication.id}`,
+          `http://localhost:4000/like/names/${props.id}`,
           config
         );
         promise2.then((response) => {
           const nameResponse = response.data;
-
           setNames(nameResponse);
         });
         promise2.catch((error) => {
@@ -112,27 +205,29 @@ export default function Posts({ publication }) {
     });
   }
 
+  function checkLike() {
+    if (isLiked.publicationId.includes(props.id)) { return true }
+    else { return false }
+  }
+
   return (
     <Container>
       <LikeSection>
-        <img
-          src="https://ichef.bbci.co.uk/news/976/cpsprodpb/17638/production/_124800859_gettyimages-817514614.jpg"
-          alt="profilePic"
-        />
-        { isLiked ? <IconContext.Provider value={ { color: "red", size: "1.5em" } }><FaHeart onClick={ dislike } /></IconContext.Provider> :
+        <img src={ props.profilePic } alt="profilePic" />
+        { isLiked ? <IconContext.Provider value={ { color: "red", size: "1.5em" } }><FaHeart onClick={ () => checkLike } /></IconContext.Provider> :
           <IconContext.Provider value={ { color: "white", size: "1.5em" } }><FaRegHeart onClick={ like } /></IconContext.Provider> }
-        <a data-tip data-for={ `${publication.id}` }>
+        <a data-tip data-for={ `${props.id}` }>
           <span>{ likes } likes</span>
         </a>
         { isLiked ? (
-          <ReactTooltip id={ `${publication.id}` } place="bottom" type="light">
+          <ReactTooltip id={ `${props.id}` } place="bottom" type="light">
             Você
             { names.length > 0
               ? `, ${names[0].name} and others ${likes - 2} people`
               : ` and others 0 people` }
           </ReactTooltip>
         ) : (
-          <ReactTooltip id={ `${publication.id}` } place="bottom" type="light">
+          <ReactTooltip id={ `${props.id}` } place="bottom" type="light">
             { names.length > 1
               ? `${names[0].name}, ${names[1].name} and others ${likes - 2
               } people`
@@ -142,42 +237,84 @@ export default function Posts({ publication }) {
           </ReactTooltip>
         ) }
       </LikeSection>
-      <div>
-        <h1>Juvenal Juvêncio</h1>
-        <h2>
-          Muito maneiro esse tutorial de Material UI com React, deem uma olhada!
-          #React #material
-        </h2>
-      </div>
+      <ContentSection>
+        <TopPost>
+          <h1>{ props.username }</h1>
+          <div>
+            <TiPencil
+              onClick={ () => updatePostById(props.id) }
+              color={ "#ffffff" }
+              title={ TiPencil }
+              height="16px"
+              width="16px"
+              onKeyDown={ handleEscPress }
+              onKeyPress={ handleEnterPress }
+            />
+            <CgTrashEmpty
+              onClick={ openModal }
+              color={ "#ffffff" }
+              title={ CgTrashEmpty }
+              height="16px"
+              width="16px"
+            />
+          </div>
+        </TopPost>
+        <Modal
+          isOpen={ modalIsOpen }
+          ariaHideApp={ false }
+          onRequestClose={ closeModal }
+          className="Modal"
+          overlayClassName="Overlay"
+        >
+          { loading ? (
+            <Loading>
+              <ThreeDots color="#FFFFFF" width={ 50 } />
+            </Loading>
+          ) : (
+            <>
+              <Text>Are you sure you want to delete this post?</Text>
+              <ButtonDiv>
+                <Cancel onClick={ closeModal }>No, go back</Cancel>
+                <Send onClick={ () => deletePostById(props.id) }>
+                  Yes, delete it
+                </Send>
+              </ButtonDiv>
+            </>
+          ) }
+        </Modal>
+        { textArea ? (
+          <TextArea
+            bg={ true }
+            type="text"
+            ref={ textareaRef }
+            onKeyPress={ handleEnterPress }
+            defaultValue={ props.description }
+          ></TextArea>
+        ) : (
+          <h2>{ props.description }</h2>
+        ) }
+        <LinkMetadata href={ props.link } target="_blank">
+          <LinkInformation>
+            <LinkTitle>{ props.urlTitle }</LinkTitle>
+            <LinkDescription>{ props.urlDescription }</LinkDescription>
+            <LinkUrl>{ props.link }</LinkUrl>
+          </LinkInformation>
+          <LinkImage src={ props.urlImage } />
+        </LinkMetadata>
+      </ContentSection>
     </Container>
   );
 }
 
 const Container = styled.div`
   width: 611px;
-  height: 276px;
+  height: auto;
   background: #171717;
   border-radius: 16px;
   margin-bottom: 16px;
   padding: 20px;
   display: flex;
-
-  h1 {
-    font-family: "Lato";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 23px;
-    color: #ffffff;
-    margin-bottom: 10px;
-  }
-
-  h2 {
-    font-weight: 400;
-    font-size: 17px;
-    color: #b7b7b7;
-    font-family: "Lato";
-    margin-bottom: 10px;
-  }
+  position: relative;
 `;
 
 const LikeSection = styled.div`
@@ -185,14 +322,12 @@ const LikeSection = styled.div`
   flex-direction: column;
   align-items: center;
   margin-right: 20px;
-
   img {
     width: 50px;
     height: 50px;
     border-radius: 50%;
     margin-bottom: 19px;
   }
-
   p {
     font-family: "Lato";
     font-style: normal;
@@ -203,4 +338,154 @@ const LikeSection = styled.div`
     align-items: center;
     justify-content: center;
   }
+`;
+
+const TextArea = styled.textarea`
+  width: 505px;
+  height: 45px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: ${(props) => (props.bg ? "#FFFFFF" : "#171717")};
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  color: #9b9595;
+`;
+
+const TopPost = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const Loading = styled.div`
+  border: none;
+  border-radius: 5px;
+  width: 135px;
+  height: 40px;
+  background-color: #1877f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  @media (max-width: 700px) {
+    width: 100px;
+    height: 40px;
+  }
+  @media (max-width: 500px) {
+    width: 85px;
+    height: 30px;
+  }
+`;
+
+const Text = styled.p`
+  font-family: "Lato";
+  font-weight: bold;
+  font-size: 32px;
+  text-align: center;
+  color: #ffffff;
+  margin-top: 40px;
+`;
+
+const ButtonDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin: 20px;
+`;
+
+const Cancel = styled.button`
+  width: 134px;
+  height: 37px;
+  background: #ffffff;
+  border-radius: 5px;
+  font-family: "Lato";
+  font-weight: bold;
+  font-size: 18px;
+  color: #1877f2;
+  border: none;
+  cursor: pointer;
+`;
+
+const Send = styled.button`
+  width: 134px;
+  height: 37px;
+  background: #1877f2;
+  border-radius: 5px;
+  font-family: "Lato";
+  font-weight: bold;
+  font-size: 18px;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+`;
+
+const ContentSection = styled.div`
+  h1 {
+    font-family: "Lato";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 23px;
+    color: #ffffff;
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-weight: 400;
+    font-size: 17px;
+    color: #b7b7b7;
+    font-family: "Lato";
+    margin-bottom: 10px;
+  }
+`;
+
+const LinkMetadata = styled.a`
+  width: 503px;
+  height: 155px;
+  border: 1px solid #4d4d4d;
+  border-radius: 11px;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const LinkInformation = styled.div`
+  padding: 20px;
+  width: 100%;
+`;
+
+const LinkTitle = styled.div`
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  color: #cecece;
+  margin-bottom: 10px;
+  word-break: break-all;
+`;
+
+const LinkDescription = styled.div`
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 11px;
+  color: #9b9595;
+  margin-bottom: 10px;
+  word-break: break-all;
+`;
+
+const LinkUrl = styled.div`
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 11px;
+  color: #cecece;
+  word-break: break-all;
+`;
+
+const LinkImage = styled.img`
+  width: 153.44px;
+  height: 155px;
+  border-radius: 0px 12px 13px 0px;
 `;
