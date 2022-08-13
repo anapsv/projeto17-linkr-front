@@ -21,6 +21,7 @@ export default function Posts(props) {
   function handleEnterPress(e) {
     if (e.key === "Enter") {
       e.preventDefault();
+      updatePostById()
     }
   }
 
@@ -111,6 +112,7 @@ export default function Posts(props) {
               height="16px"
               width="16px"
               onKeyDown={handleEscPress}
+              onKeyPress={handleEnterPress}
             />
             <CgTrashEmpty
               onClick={() => deletePostById(props.id)}
@@ -132,7 +134,7 @@ export default function Posts(props) {
           ) : (
             <h2>{props.description}</h2>
           )}
-        <LinkMetadata>
+        <LinkMetadata href={props.link} target="_blank">
           <LinkInformation>
             <LinkTitle>{props.urlTitle}</LinkTitle>
             <LinkDescription>{props.urlDescription}</LinkDescription>
@@ -229,12 +231,13 @@ const ContentSection = styled.div`
   }
 `;
 
-const LinkMetadata = styled.div`
+const LinkMetadata = styled.a`
   width: 503px;
   height: 155px;
   border: 1px solid #4d4d4d;
   border-radius: 11px;
   display: flex;
+  justify-content: space-between;
 `;
 
 const LinkInformation = styled.div`
