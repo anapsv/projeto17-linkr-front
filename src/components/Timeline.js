@@ -13,7 +13,11 @@ export default function Timeline() {
   const [publications, setPublications] = useState([]);
   console.log(publications);
 
-  function getPosts () {
+  function getPosts() {
+    return "oi";
+  }
+
+  useEffect(() => {
     const url = "http://localhost:4000/timeline";
     const auth = {
       headers: {
@@ -30,9 +34,6 @@ export default function Timeline() {
         alert("Ocorreu um erro");
         console.log(error.data);
       });
-  }
-  useEffect(() => {
-    getPosts();
   }, []);
 
   function RenderPosts() {
@@ -47,7 +48,6 @@ export default function Timeline() {
         urlDescription={publi.urlDescription}
         urlImage={publi.urlImage}
         urlTitle={publi.urlTitle}
-        getPosts={getPosts}
       />
     ));
   }
@@ -58,7 +58,7 @@ export default function Timeline() {
       <TimelineContainer>
         <PostsContainer>
           <Title>timeline</Title>
-          <NewPost />
+          <NewPost getPosts={getPosts} />
           <RenderPosts />
         </PostsContainer>
         <Trendings />
