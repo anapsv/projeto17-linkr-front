@@ -13,7 +13,7 @@ import { ThreeDots } from "react-loader-spinner";
 export default function Posts(props) {
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
-  const textareaRef = useRef(null);
+  const textareaRef = useRef('');
   const [{ token }] = useUserData();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -56,26 +56,25 @@ export default function Posts(props) {
   }, [edit]);
 
   function updatePostById(publicationId) {
-    const promise = axios.post(
-      "http://localhost:4000/editpost",
-      { publicationId, description: textareaRef.current.value },
-      auth
-    );
-    promise.then((res) => {
-      setEdit(false);
-      //atualizar a página
-    });
-    promise.catch((err) => {
-      alert("Unable to save changes. Try again!");
-      setTextArea(false);
-    });
+      const promise = axios.post(
+        "http://localhost:4000/editpost",
+        { description: textareaRef.current.value, publicationId },
+        auth
+      );
+      promise.then((res) => {
+        setEdit(false);
+        //atualizar a página
+      });
+      promise.catch((err) => {
+        alert("Unable to save changes. Try again!");
+        setTextArea(false);
+      });
   }
 
 
 
 
   function deletePostById(publicationId) {
-    setOpen((open) => !open);
     setLoading(true);
     const promise = axios.delete(`http://localhost:4000/deletepost`, {
       auth,
@@ -87,7 +86,6 @@ export default function Posts(props) {
       setLoading(false);
     });
     promise.catch((err) => {
-      console.log(err);
       setLoading(false);
       alert("Unable to delete post. Try again!");
     });
