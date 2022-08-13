@@ -95,7 +95,7 @@ export default function UserTimeline() {
 }
 
 const Container = styled.div`
-  width: 100vw;
+  width: 100%;
   height: 100%;
   background-color: #333333;
   display: flex;
@@ -135,9 +135,10 @@ const PostsContainer = styled.div`
     text-align: center;
     justify-content: center;
     font-size: 40px;
-    margin-top: 100px;
+    margin-top: 300px;
     color: #ffffff;
     font-family: "Oswald", sans-serif;
     font-weight: bold;
+    width: 611px;
   }
 `;
