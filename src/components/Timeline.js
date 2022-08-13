@@ -13,7 +13,7 @@ export default function Timeline() {
   const [publications, setPublications] = useState([]);
   console.log(publications);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [refresh, setRefresh] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
@@ -27,16 +27,18 @@ export default function Timeline() {
     axios
       .get(url, auth)
       .then((res) => {
+        setRefresh(false);
         setIsLoading(false);
         setPublications(res.data);
       })
       .catch((error) => {
+        setRefresh(false);
         alert(
           "An error occured while trying to fetch the posts, please refresh the page"
         );
         console.log(error.data);
       });
-  }, []);
+  }, [refresh]);
 
   function RenderPosts() {
     return publications.map((publi) => (
@@ -50,6 +52,7 @@ export default function Timeline() {
         urlDescription={publi.urlDescription}
         urlImage={publi.urlImage}
         urlTitle={publi.urlTitle}
+        setRefresh={setRefresh}
       />
     ));
   }
@@ -71,7 +74,7 @@ export default function Timeline() {
       <TimelineContainer>
         <PostsContainer>
           <Title>timeline</Title>
-          <NewPost />
+          <NewPost setRefresh={setRefresh}/>
           <Loading />
         </PostsContainer>
         <Trendings />

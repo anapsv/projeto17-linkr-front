@@ -20,11 +20,11 @@ export default function Posts(props) {
   const [loading, setLoading] = useState(false);
 
 
+
   function handleEnterPress(e) {
     if (e.key === "Enter") {
       e.preventDefault();
       updatePostById(props.id);
-      //atualizar página
     }
   }
 
@@ -61,8 +61,7 @@ export default function Posts(props) {
           headers: { Authorization: `Bearer ${token}` }
         });
       promise.then((res) => {
-        setEdit(false);
-        //atualizar a página
+        props.setRefresh(true);
       });
       promise.catch((err) => {
         alert("Unable to save changes. Try again!");
@@ -90,7 +89,7 @@ export default function Posts(props) {
     promise.then((res) => {
       setLoading(false);
       setIsOpen(false);
-      //atualizar timeline
+      props.setRefresh(true);
     });
     promise.catch((err) => {
       console.log(err);
