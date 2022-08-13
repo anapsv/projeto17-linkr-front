@@ -10,6 +10,7 @@ import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 import { useNavigate } from "react-router-dom";
+import { ReactTagify } from "react-tagify";
 
 export default function Posts(props) {
   const navigate = useNavigate();
@@ -107,6 +108,10 @@ export default function Posts(props) {
     });
   }
 
+  function goToHashtag(tag){
+    navigate(`/hashtag/${tag.replace("#", "")}`);
+  }
+
   return (
     <Container>
       <LikeSection>
@@ -172,12 +177,18 @@ export default function Posts(props) {
             defaultValue={props.description}
           ></TextArea>
         ) : (
-          <h2>{props.description}</h2>
+            <h2>
+              <ReactTagify tagStyle={{ color: 'red', fontFamily: 'Lato', fontWeight: 700, cursor: 'pointer' }} tagClicked={(tag) => goToHashtag(tag)}>
+                {props.description} 
+              </ReactTagify>
+            </h2>
         )}
         <LinkMetadata href={props.link} target="_blank">
           <LinkInformation>
             <LinkTitle>{props.urlTitle}</LinkTitle>
-            <LinkDescription>{props.urlDescription}</LinkDescription>
+            
+              <LinkDescription>{props.urlDescription}</LinkDescription>
+            
             <LinkUrl>{props.link}</LinkUrl>
           </LinkInformation>
           <LinkImage src={props.urlImage} />
