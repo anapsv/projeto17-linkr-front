@@ -10,20 +10,21 @@ import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 
+
 export default function Posts(props) {
-  const [post, setPost] = useState([]);
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
-  const [publicationId, setPublicationId] = useState("");
-  const textareaRef = useRef("");
+  const textareaRef = useRef('');
   const [{ token }] = useUserData();
-  const [open, setOpen] = useState(false);
+  const [modalIsOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+
 
   function handleEnterPress(e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      // updatePost();
+      updatePostById(props.id);
     }
   }
 
@@ -31,14 +32,54 @@ export default function Posts(props) {
     if (e.key === "Escape") {
       e.preventDefault();
       setEdit(false);
+      setTextArea(false);
     }
   }
 
-  function deletePostById(publicationId) {
-    //setOpen((open) => !open);
-    console.log(publicationId);
-    setLoading(true);
+  useEffect(() => {
+    document.addEventListener('keydown', handleEscPress, true);
+  }, [])
+  
+  const toggleEditing = () => {
+    setEdit(!edit);
+    setTextArea(!textArea);
+  };
 
+
+  useEffect(() => {
+    if (edit) {
+      textareaRef.current.focus();
+    }
+  }, [edit]);
+
+  function updatePostById(publicationId) {
+    toggleEditing();
+      const promise = axios.post(
+        "http://localhost:4000/editpost", {
+          publicationId, description: textareaRef.current.value
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      promise.then((res) => {
+        props.setRefresh(true);
+      });
+      promise.catch((err) => {
+        alert("Unable to save changes. Try again!");
+        setTextArea(false);
+      });
+  }
+
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
+
+  function deletePostById(publicationId) {
+    setLoading(true);
     const promise = axios.delete(`http://localhost:4000/deletepost`, {
       headers: { Authorization: `Bearer ${token}` },
       data: {
@@ -47,6 +88,8 @@ export default function Posts(props) {
     });
     promise.then((res) => {
       setLoading(false);
+      setIsOpen(false);
+      props.setRefresh(true);
     });
     promise.catch((err) => {
       console.log(err);
@@ -55,29 +98,7 @@ export default function Posts(props) {
     });
   }
 
-  // useEffect(() => {
-  //   if (edit) {
-  //     textareaRef.current.focus();
-  //   }
-  // }, [edit]);
 
-  function updatePostById(id) {
-    setTextArea(true);
-    console.log(id);
-    const auth = { headers: { Authorization: `Bearer ${token}` } };
-    const promise = axios.post(
-      "http://localhost:4000/editpost",
-      { id, description: textareaRef.current.value },
-      auth
-    );
-    promise.then((res) => {
-      setEdit(false);
-    });
-    promise.catch((err) => {
-      alert("Unable to save changes. Try again!");
-      setTextArea(false);
-    });
-  }
 
   return (
     <Container>
@@ -98,9 +119,11 @@ export default function Posts(props) {
               title={TiPencil}
               height="16px"
               width="16px"
+              onKeyDown={handleEscPress}
+              onKeyPress={handleEnterPress}
             />
             <CgTrashEmpty
-              onClick={() => deletePostById(props.id)}
+              onClick={openModal}
               color={"#ffffff"}
               title={CgTrashEmpty}
               height="16px"
@@ -108,21 +131,35 @@ export default function Posts(props) {
             />
           </div>
         </TopPost>
-        <h2>
-          {edit && post.id === publicationId ? (
+        <Modal isOpen={modalIsOpen} ariaHideApp={false} onRequestClose={closeModal} className="Modal" overlayClassName="Overlay" >
+          {
+            loading ? (
+              <Loading>
+                <ThreeDots color="#FFFFFF" width={50} />
+              </Loading>
+            )
+            :
+              <>
+                <Text>Are you sure you want to delete this post?</Text>
+                <ButtonDiv>
+                  <Cancel onClick={closeModal}>No, go back</Cancel>
+                  <Send onClick={() => deletePostById(props.id)}>Yes, delete it</Send>
+                </ButtonDiv>
+              </>
+
+          }
+        </Modal>
+          {textArea ? (
             <TextArea
-              edit={edit}
+              bg={true}
               type="text"
               ref={textareaRef}
               onKeyPress={handleEnterPress}
-              onKeyDown={handleEscPress}
               defaultValue={props.description}
-              readOnly={textArea}
             ></TextArea>
           ) : (
             <h2>{props.description}</h2>
           )}
-        </h2>
         <LinkMetadata href={props.link} target="_blank">
           <LinkInformation>
             <LinkTitle>{props.urlTitle}</LinkTitle>
@@ -144,6 +181,7 @@ const Container = styled.div`
   margin-bottom: 16px;
   padding: 20px;
   display: flex;
+  position: relative;
 `;
 
 const LikeSection = styled.div`
@@ -174,9 +212,15 @@ const LikeSection = styled.div`
 const TextArea = styled.textarea`
   width: 505px;
   height: 45px;
+  padding: 10px;
   border: none;
   border-radius: 5px;
-  background-color: ${(props) => (props.edit ? "#FFFFFF" : "#171717")};
+  background-color: ${(props) => (props.bg ? "#FFFFFF" : "#171717")};
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  color: #9b9595;
 `;
 
 const TopPost = styled.div`
@@ -185,15 +229,70 @@ const TopPost = styled.div`
   justify-content: space-between;
 `;
 
-const DeleteSection = styled.div``;
 
-const Loading = styled.div``;
+const Loading = styled.div`
+  border: none;
+  border-radius: 5px;
+  width: 135px;
+  height: 40px;
+  background-color: #1877F2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  @media (max-width: 700px) {
+      width: 100px;
+      height: 40px;
+  }
+  @media (max-width: 500px) {
+      width: 85px;
+      height: 30px;
+  }
+`;
 
-const ModalStyle = styled.div``;
 
-const Text = styled.h2``;
+const Text=styled.p`
+	font-family: "Lato";
+	font-weight: bold;
+	font-size: 32px;
+	text-align: center;
+	color: #ffffff;
+  margin-top: 40px;
+`;
 
-const Button = styled.div``;
+const ButtonDiv=styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	margin: 20px;
+`;
+
+const Cancel=styled.button`
+	width: 134px;
+	height: 37px;
+	background: #ffffff;
+	border-radius: 5px;
+	font-family: "Lato";
+	font-weight: bold;
+	font-size: 18px;
+	color: #1877f2;
+	border: none;
+	cursor: pointer;
+`;
+
+const Send=styled.button`
+	width: 134px;
+	height: 37px;
+	background: #1877f2;
+	border-radius: 5px;
+	font-family: "Lato";
+	font-weight: bold;
+	font-size: 18px;
+	color: #ffffff;
+	border: none;
+	cursor: pointer;
+`;
 
 const ContentSection = styled.div`
   h1 {
