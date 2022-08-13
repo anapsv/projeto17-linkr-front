@@ -13,10 +13,8 @@ export default function Timeline() {
   const [publications, setPublications] = useState([]);
   console.log(publications);
   const [isLoading, setIsLoading] = useState(false);
-  const [refresh, setRefresh] = useState(true);
 
-  useEffect(() => {
-    setIsLoading(true);
+  async function fetchPosts() {
     const url = "http://localhost:4000/timeline";
     const auth = {
       headers: {
@@ -27,18 +25,22 @@ export default function Timeline() {
     axios
       .get(url, auth)
       .then((res) => {
-        setRefresh(false);
         setIsLoading(false);
         setPublications(res.data);
       })
       .catch((error) => {
-        setRefresh(false);
+        setIsLoading(false);
         alert(
           "An error occured while trying to fetch the posts, please refresh the page"
         );
         console.log(error.data);
       });
-  }, [refresh]);
+  }
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchPosts();
+  }, []);
 
   function RenderPosts() {
     return publications.map((publi) => (
@@ -52,7 +54,7 @@ export default function Timeline() {
         urlDescription={publi.urlDescription}
         urlImage={publi.urlImage}
         urlTitle={publi.urlTitle}
-        setRefresh={setRefresh}
+        fetchPosts={fetchPosts}
       />
     ));
   }
@@ -74,7 +76,7 @@ export default function Timeline() {
       <TimelineContainer>
         <PostsContainer>
           <Title>timeline</Title>
-          <NewPost setRefresh={setRefresh}/>
+          <NewPost fetchPosts={fetchPosts} />
           <Loading />
         </PostsContainer>
         <Trendings />
@@ -85,7 +87,7 @@ export default function Timeline() {
 
 const Container = styled.div`
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   background-color: #333333;
   display: flex;
   justify-content: center;

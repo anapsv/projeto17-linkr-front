@@ -3,7 +3,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useUserData } from "../contexts/UserDataContext";
 
-export default function NewPost( {setRefresh }) {
+export default function NewPost({ fetchPosts }) {
   const [loading, setLoading] = useState(false);
   const [{ profilePic, token }] = useUserData();
   const [link, setLink] = useState("");
@@ -21,8 +21,7 @@ export default function NewPost( {setRefresh }) {
       setLoading(false);
       setLink("");
       setDescription("");
-      setRefresh(true);
-      
+      fetchPosts();
     });
     promise.catch((err) => {
       setLoading(false);
