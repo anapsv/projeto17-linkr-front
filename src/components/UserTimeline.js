@@ -1,21 +1,23 @@
-import styled from "styled-components";
+import { useState, useEffect } from "react";
+import { useUserData } from "../contexts/UserDataContext";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
-import Top from "./Header";
 import Trendings from "./Trendings";
 import Posts from "./Posts";
-import NewPost from "./NewPost";
-import { useUserData } from "../contexts/UserDataContext";
-import { useState, useEffect } from "react";
-import axios from "axios";
+import Top from "./Header";
+import styled from "styled-components";
 
-export default function Timeline() {
+export default function UserTimeline() {
   const [{ token }] = useUserData();
   const [publications, setPublications] = useState([]);
   console.log(publications);
   const [isLoading, setIsLoading] = useState(false);
 
-  async function fetchPosts() {
-    const url = "http://localhost:4000/timeline";
+  const { id } = useParams();
+
+  function fetchPosts() {
+    const url = `http://localhost:4000/user/${id}`;
     const auth = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -67,7 +69,15 @@ export default function Timeline() {
     if (!isLoading && publications.length === 0) {
       return <p>There are no posts yes</p>;
     } else {
-      return <RenderPosts />;
+      return (
+        <>
+          <UserInfo>
+            <ProfileImage src={publications[0].profilePic} />
+            <Title>{publications[0].username + "'s posts"}</Title>
+          </UserInfo>
+          <RenderPosts />
+        </>
+      );
     }
   }
 
@@ -76,8 +86,6 @@ export default function Timeline() {
       <Top />
       <TimelineContainer>
         <PostsContainer>
-          <Title>timeline</Title>
-          <NewPost fetchPosts={fetchPosts} />
           <Loading />
         </PostsContainer>
         <Trendings />
@@ -99,13 +107,25 @@ const TimelineContainer = styled.div`
   justify-content: center;
 `;
 
+const UserInfo = styled.div`
+  margin-top: 125px;
+  margin-bottom: 37px;
+  display: flex;
+  align-items: center;
+`;
+
 const Title = styled.div`
   font-size: 43px;
   font-weight: bold;
   color: #ffffff;
   font-family: "Oswald", sans-serif;
-  margin-top: 125px;
-  margin-bottom: 43px;
+`;
+
+const ProfileImage = styled.img`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 20px;
 `;
 
 const PostsContainer = styled.div`
