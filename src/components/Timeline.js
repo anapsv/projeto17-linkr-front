@@ -14,9 +14,6 @@ export default function Timeline() {
   console.log(publications);
   const [isLoading, setIsLoading] = useState(false);
 
-  function getPosts() {
-    return "oi";
-  }
 
   useEffect(() => {
     setIsLoading(true);
@@ -74,7 +71,7 @@ export default function Timeline() {
       <TimelineContainer>
         <PostsContainer>
           <Title>timeline</Title>
-          <NewPost getPosts={getPosts} />
+          <NewPost />
           <Loading />
         </PostsContainer>
         <Trendings />

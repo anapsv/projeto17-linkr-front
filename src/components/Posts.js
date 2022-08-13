@@ -10,18 +10,21 @@ import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 
+
 export default function Posts(props) {
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
   const textareaRef = useRef('');
   const [{ token }] = useUserData();
-  const [open, setOpen] = useState(false);
+  const [modalIsOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
 
   function handleEnterPress(e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      updatePostById()
+      updatePostById(props.id);
+      //atualizar página
     }
   }
 
@@ -67,13 +70,17 @@ export default function Posts(props) {
       });
   }
 
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+  }
 
 
   function deletePostById(publicationId) {
-    //setOpen((open) => !open);
-    console.log(publicationId);
     setLoading(true);
-
     const promise = axios.delete(`http://localhost:4000/deletepost`, {
       headers: { Authorization: `Bearer ${token}` },
       data: {
@@ -82,6 +89,8 @@ export default function Posts(props) {
     });
     promise.then((res) => {
       setLoading(false);
+      setIsOpen(false);
+      //atualizar timeline
     });
     promise.catch((err) => {
       console.log(err);
@@ -115,7 +124,7 @@ export default function Posts(props) {
               onKeyPress={handleEnterPress}
             />
             <CgTrashEmpty
-              onClick={() => deletePostById(props.id)}
+              onClick={openModal}
               color={"#ffffff"}
               title={CgTrashEmpty}
               height="16px"
@@ -123,6 +132,24 @@ export default function Posts(props) {
             />
           </div>
         </TopPost>
+        <Modal isOpen={modalIsOpen} ariaHideApp={false} onRequestClose={closeModal} className="Modal" overlayClassName="Overlay" >
+          {
+            loading ? (
+              <Loading>
+                <ThreeDots color="#FFFFFF" width={50} />
+              </Loading>
+            )
+            :
+              <>
+                <Text>Are you sure you want to delete this post?</Text>
+                <ButtonDiv>
+                  <Cancel onClick={closeModal}>No, go back</Cancel>
+                  <Send onClick={() => deletePostById(props.id)}>Yes, delete it</Send>
+                </ButtonDiv>
+              </>
+
+          }
+        </Modal>
           {textArea ? (
             <TextArea
               bg={true}
@@ -155,6 +182,7 @@ const Container = styled.div`
   margin-bottom: 16px;
   padding: 20px;
   display: flex;
+  position: relative;
 `;
 
 const LikeSection = styled.div`
@@ -202,15 +230,70 @@ const TopPost = styled.div`
   justify-content: space-between;
 `;
 
-const DeleteSection = styled.div``;
 
-const Loading = styled.div``;
+const Loading = styled.div`
+  border: none;
+  border-radius: 5px;
+  width: 135px;
+  height: 40px;
+  background-color: #1877F2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  @media (max-width: 700px) {
+      width: 100px;
+      height: 40px;
+  }
+  @media (max-width: 500px) {
+      width: 85px;
+      height: 30px;
+  }
+`;
 
-const ModalStyle = styled.div``;
 
-const Text = styled.h2``;
+const Text=styled.p`
+	font-family: "Lato";
+	font-weight: bold;
+	font-size: 32px;
+	text-align: center;
+	color: #ffffff;
+  margin-top: 40px;
+`;
 
-const Button = styled.div``;
+const ButtonDiv=styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	margin: 20px;
+`;
+
+const Cancel=styled.button`
+	width: 134px;
+	height: 37px;
+	background: #ffffff;
+	border-radius: 5px;
+	font-family: "Lato";
+	font-weight: bold;
+	font-size: 18px;
+	color: #1877f2;
+	border: none;
+	cursor: pointer;
+`;
+
+const Send=styled.button`
+	width: 134px;
+	height: 37px;
+	background: #1877f2;
+	border-radius: 5px;
+	font-family: "Lato";
+	font-weight: bold;
+	font-size: 18px;
+	color: #ffffff;
+	border: none;
+	cursor: pointer;
+`;
 
 const ContentSection = styled.div`
   h1 {
