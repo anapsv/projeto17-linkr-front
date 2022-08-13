@@ -47,6 +47,7 @@ export default function Posts(props) {
     });
     promise.then((res) => {
       setLoading(false);
+      props.fetchPosts();
     });
     promise.catch((err) => {
       console.log(err);

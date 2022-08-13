@@ -14,12 +14,7 @@ export default function Timeline() {
   console.log(publications);
   const [isLoading, setIsLoading] = useState(false);
 
-  function getPosts() {
-    return "oi";
-  }
-
-  useEffect(() => {
-    setIsLoading(true);
+  async function fetchPosts() {
     const url = "http://localhost:4000/timeline";
     const auth = {
       headers: {
@@ -34,11 +29,17 @@ export default function Timeline() {
         setPublications(res.data);
       })
       .catch((error) => {
+        setIsLoading(false);
         alert(
           "An error occured while trying to fetch the posts, please refresh the page"
         );
         console.log(error.data);
       });
+  }
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchPosts();
   }, []);
 
   function RenderPosts() {
@@ -53,6 +54,7 @@ export default function Timeline() {
         urlDescription={publi.urlDescription}
         urlImage={publi.urlImage}
         urlTitle={publi.urlTitle}
+        fetchPosts={fetchPosts}
       />
     ));
   }
@@ -74,7 +76,7 @@ export default function Timeline() {
       <TimelineContainer>
         <PostsContainer>
           <Title>timeline</Title>
-          <NewPost getPosts={getPosts} />
+          <NewPost fetchPosts={fetchPosts} />
           <Loading />
         </PostsContainer>
         <Trendings />
@@ -85,7 +87,7 @@ export default function Timeline() {
 
 const Container = styled.div`
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   background-color: #333333;
   display: flex;
   justify-content: center;
