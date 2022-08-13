@@ -31,7 +31,9 @@ export default function Timeline() {
         setPublications(res.data);
       })
       .catch((error) => {
-        alert("Ocorreu um erro");
+        alert(
+          "An error occured while trying to fetch the posts, please refresh the page"
+        );
         console.log(error.data);
       });
   }, []);
