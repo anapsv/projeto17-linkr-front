@@ -17,12 +17,10 @@ export default function Posts(props) {
   const [{ token }] = useUserData();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const auth = { headers: { Authorization: `Bearer ${token}` } };
 
   function handleEnterPress(e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      updatePostById();
     }
   }
 
@@ -43,11 +41,6 @@ export default function Posts(props) {
     setTextArea(!textArea);
   };
 
-  function updatePost (publicationId) {
-    toggleEditing();
-    updatePostById(publicationId);
-  }
-
 
   useEffect(() => {
     if (edit) {
@@ -56,11 +49,13 @@ export default function Posts(props) {
   }, [edit]);
 
   function updatePostById(publicationId) {
+    toggleEditing();
       const promise = axios.post(
-        "http://localhost:4000/editpost",
-        { description: textareaRef.current.value, publicationId },
-        auth
-      );
+        "http://localhost:4000/editpost", {
+          publicationId, description: textareaRef.current.value
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
       promise.then((res) => {
         setEdit(false);
         //atualizar a página
@@ -110,7 +105,7 @@ export default function Posts(props) {
           <h1>{props.username}</h1>
           <div>
             <TiPencil
-              onClick={() => updatePost(props.id)}
+              onClick={() => updatePostById(props.id)}
               color={"#ffffff"}
               title={TiPencil}
               height="16px"
