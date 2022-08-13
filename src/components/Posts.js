@@ -73,11 +73,13 @@ export default function Posts(props) {
 
 
 
-
   function deletePostById(publicationId) {
+    //setOpen((open) => !open);
+    console.log(publicationId);
     setLoading(true);
+
     const promise = axios.delete(`http://localhost:4000/deletepost`, {
-      auth,
+      headers: { Authorization: `Bearer ${token}` },
       data: {
         publicationId,
       },
@@ -86,11 +88,11 @@ export default function Posts(props) {
       setLoading(false);
     });
     promise.catch((err) => {
+      console.log(err);
       setLoading(false);
       alert("Unable to delete post. Try again!");
     });
   }
-
 
 
 
