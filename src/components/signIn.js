@@ -32,7 +32,7 @@ export default function SignIn() {
     });
     promise.catch((err) => {
       setDisable(false);
-      alert(err.response.data.error);
+      //alert(err.response.data.error);
     });
   }
 

@@ -11,19 +11,19 @@ import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 
 export default function Posts(props) {
-  const [post, setPost] = useState([]);
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
-  const [publicationId, setPublicationId] = useState("");
   const textareaRef = useRef("");
   const [{ token }] = useUserData();
-  const [open, setOpen] = useState(false);
+  const [modalIsOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [enterPress, setEnterPress] = useState(false);
 
   function handleEnterPress(e) {
+    setEnterPress(true);
     if (e.key === "Enter") {
       e.preventDefault();
-      // updatePost();
+      updatePostById(props.id);
     }
   }
 
@@ -31,14 +31,61 @@ export default function Posts(props) {
     if (e.key === "Escape") {
       e.preventDefault();
       setEdit(false);
+      setTextArea(false);
     }
   }
 
-  function deletePostById(publicationId) {
-    //setOpen((open) => !open);
-    console.log(publicationId);
-    setLoading(true);
+  useEffect(() => {
+    document.addEventListener("keydown", handleEscPress, true);
+  }, []);
 
+  const toggleEditing = () => {
+    setEdit(!edit);
+    setTextArea(!textArea);
+  };
+
+  useEffect(() => {
+    if (edit) {
+      textareaRef.current.focus();
+    }
+  }, [edit]);
+
+  function updatePostById(publicationId) {
+    toggleEditing();
+    console.log(enterPress);
+    if (enterPress) {
+      const promise = axios.post(
+        "http://localhost:4000/editpost",
+        {
+          publicationId,
+          description: textareaRef.current.value,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      promise.then((res) => {
+        props.fetchPosts();
+        setEnterPress(false);
+      });
+      promise.catch((err) => {
+        alert("Unable to save changes. Try again!");
+        setTextArea(false);
+        setEnterPress(false);
+      });
+    }
+  }
+
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
+  function deletePostById(publicationId) {
+    setLoading(true);
     const promise = axios.delete(`http://localhost:4000/deletepost`, {
       headers: { Authorization: `Bearer ${token}` },
       data: {
@@ -48,35 +95,12 @@ export default function Posts(props) {
     promise.then((res) => {
       setLoading(false);
       props.fetchPosts();
+      setIsOpen(false);
     });
     promise.catch((err) => {
       console.log(err);
       setLoading(false);
       alert("Unable to delete post. Try again!");
-    });
-  }
-
-  // useEffect(() => {
-  //   if (edit) {
-  //     textareaRef.current.focus();
-  //   }
-  // }, [edit]);
-
-  function updatePostById(id) {
-    setTextArea(true);
-    console.log(id);
-    const auth = { headers: { Authorization: `Bearer ${token}` } };
-    const promise = axios.post(
-      "http://localhost:4000/editpost",
-      { id, description: textareaRef.current.value },
-      auth
-    );
-    promise.then((res) => {
-      setEdit(false);
-    });
-    promise.catch((err) => {
-      alert("Unable to save changes. Try again!");
-      setTextArea(false);
     });
   }
 
@@ -99,9 +123,11 @@ export default function Posts(props) {
               title={TiPencil}
               height="16px"
               width="16px"
+              onKeyDown={handleEscPress}
+              onKeyPress={handleEnterPress}
             />
             <CgTrashEmpty
-              onClick={() => deletePostById(props.id)}
+              onClick={openModal}
               color={"#ffffff"}
               title={CgTrashEmpty}
               height="16px"
@@ -109,21 +135,40 @@ export default function Posts(props) {
             />
           </div>
         </TopPost>
-        <h2>
-          {edit && post.id === publicationId ? (
-            <TextArea
-              edit={edit}
-              type="text"
-              ref={textareaRef}
-              onKeyPress={handleEnterPress}
-              onKeyDown={handleEscPress}
-              defaultValue={props.description}
-              readOnly={textArea}
-            ></TextArea>
+        <Modal
+          isOpen={modalIsOpen}
+          ariaHideApp={false}
+          onRequestClose={closeModal}
+          className="Modal"
+          overlayClassName="Overlay"
+        >
+          {loading ? (
+            <Loading>
+              <ThreeDots color="#FFFFFF" width={50} />
+            </Loading>
           ) : (
-            <h2>{props.description}</h2>
+            <>
+              <Text>Are you sure you want to delete this post?</Text>
+              <ButtonDiv>
+                <Cancel onClick={closeModal}>No, go back</Cancel>
+                <Send onClick={() => deletePostById(props.id)}>
+                  Yes, delete it
+                </Send>
+              </ButtonDiv>
+            </>
           )}
-        </h2>
+        </Modal>
+        {textArea ? (
+          <TextArea
+            bg={true}
+            type="text"
+            ref={textareaRef}
+            onKeyPress={handleEnterPress}
+            defaultValue={props.description}
+          ></TextArea>
+        ) : (
+          <h2>{props.description}</h2>
+        )}
         <LinkMetadata href={props.link} target="_blank">
           <LinkInformation>
             <LinkTitle>{props.urlTitle}</LinkTitle>
@@ -145,6 +190,7 @@ const Container = styled.div`
   margin-bottom: 16px;
   padding: 20px;
   display: flex;
+  position: relative;
 `;
 
 const LikeSection = styled.div`
@@ -175,9 +221,15 @@ const LikeSection = styled.div`
 const TextArea = styled.textarea`
   width: 505px;
   height: 45px;
+  padding: 10px;
   border: none;
   border-radius: 5px;
-  background-color: ${(props) => (props.edit ? "#FFFFFF" : "#171717")};
+  background-color: ${(props) => (props.bg ? "#FFFFFF" : "#171717")};
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  color: #9b9595;
 `;
 
 const TopPost = styled.div`
@@ -186,15 +238,68 @@ const TopPost = styled.div`
   justify-content: space-between;
 `;
 
-const DeleteSection = styled.div``;
+const Loading = styled.div`
+  border: none;
+  border-radius: 5px;
+  width: 135px;
+  height: 40px;
+  background-color: #1877f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  @media (max-width: 700px) {
+    width: 100px;
+    height: 40px;
+  }
+  @media (max-width: 500px) {
+    width: 85px;
+    height: 30px;
+  }
+`;
 
-const Loading = styled.div``;
+const Text = styled.p`
+  font-family: "Lato";
+  font-weight: bold;
+  font-size: 32px;
+  text-align: center;
+  color: #ffffff;
+  margin-top: 40px;
+`;
 
-const ModalStyle = styled.div``;
+const ButtonDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin: 20px;
+`;
 
-const Text = styled.h2``;
+const Cancel = styled.button`
+  width: 134px;
+  height: 37px;
+  background: #ffffff;
+  border-radius: 5px;
+  font-family: "Lato";
+  font-weight: bold;
+  font-size: 18px;
+  color: #1877f2;
+  border: none;
+  cursor: pointer;
+`;
 
-const Button = styled.div``;
+const Send = styled.button`
+  width: 134px;
+  height: 37px;
+  background: #1877f2;
+  border-radius: 5px;
+  font-family: "Lato";
+  font-weight: bold;
+  font-size: 18px;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+`;
 
 const ContentSection = styled.div`
   h1 {
@@ -226,6 +331,7 @@ const LinkMetadata = styled.a`
 
 const LinkInformation = styled.div`
   padding: 20px;
+  width: 100%;
 `;
 
 const LinkTitle = styled.div`
@@ -235,6 +341,7 @@ const LinkTitle = styled.div`
   font-size: 16px;
   color: #cecece;
   margin-bottom: 10px;
+  word-break: break-all;
 `;
 
 const LinkDescription = styled.div`
@@ -244,6 +351,7 @@ const LinkDescription = styled.div`
   font-size: 11px;
   color: #9b9595;
   margin-bottom: 10px;
+  word-break: break-all;
 `;
 
 const LinkUrl = styled.div`
@@ -252,6 +360,7 @@ const LinkUrl = styled.div`
   font-weight: 400;
   font-size: 11px;
   color: #cecece;
+  word-break: break-all;
 `;
 
 const LinkImage = styled.img`
