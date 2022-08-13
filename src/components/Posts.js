@@ -123,7 +123,7 @@ export default function Posts(props) {
             <h2>{props.description}</h2>
           )}
         </h2>
-        <LinkMetadata>
+        <LinkMetadata href={props.link} target="_blank">
           <LinkInformation>
             <LinkTitle>{props.urlTitle}</LinkTitle>
             <LinkDescription>{props.urlDescription}</LinkDescription>
@@ -214,12 +214,13 @@ const ContentSection = styled.div`
   }
 `;
 
-const LinkMetadata = styled.div`
+const LinkMetadata = styled.a`
   width: 503px;
   height: 155px;
   border: 1px solid #4d4d4d;
   border-radius: 11px;
   display: flex;
+  justify-content: space-between;
 `;
 
 const LinkInformation = styled.div`
