@@ -104,6 +104,8 @@ const Title = styled.div`
   @media (max-width: 821px) {
     font-size: 33px;
     padding-left: 17px;
+    margin-top: 100px;
+    margin-bottom: 30px;
   }
 `;
 
