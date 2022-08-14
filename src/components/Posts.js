@@ -9,7 +9,8 @@ import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 import { useNavigate } from "react-router-dom";
-import { func } from "joi";
+
+const BASE_URL = "http://localhost:4000";
 
 export default function Posts(props) {
   const navigate = useNavigate();
@@ -22,6 +23,12 @@ export default function Posts(props) {
   const [loading, setLoading] = useState(false);
   const [enterPress, setEnterPress] = useState(false);
   const [isLike, setIsLike] = useState(false);
+
+  const auth = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
 
   function handleEnterPress(e) {
     setEnterPress(true);
@@ -56,17 +63,14 @@ export default function Posts(props) {
 
   function updatePostById(publicationId) {
     toggleEditing();
-    console.log(enterPress);
     if (enterPress) {
       const promise = axios.post(
-        "http://localhost:4000/editpost",
+        `${BASE_URL}/editpost`,
         {
           publicationId,
           description: textareaRef.current.value,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        auth
       );
       promise.then((res) => {
         props.fetchPosts();
@@ -90,8 +94,8 @@ export default function Posts(props) {
 
   function deletePostById(publicationId) {
     setLoading(true);
-    const promise = axios.delete(`http://localhost:4000/deletepost`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const promise = axios.delete(`${BASE_URL}/deletepost`, {
+      headers: auth.headers,
       data: {
         publicationId,
       },
@@ -108,29 +112,48 @@ export default function Posts(props) {
     });
   }
 
-  function Like(id) {
+  function getLikes(id) {
+    const url = `${BASE_URL}/likeGet/${id}`;
+
+    axios
+      .get(url, auth)
+      .then((res) => {
+        if (res.data) {
+          setIsLike(res.data);
+        }
+      })
+      .catch((error) => {
+        console.log(error.data);
+      });
+  }
+
+  useEffect(() => {
+    getLikes(props.id);
+  }, [props.id]);
+
+  function handleLike(publicationId) {
     setIsLike(!isLike);
 
-    const url = `http://localhost:4000/likes/${id}`;
-    const auth = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-
     if (isLike) {
-      axios
-        .post(url, auth)
-        .then((res) => {})
-        .catch((error) => {
-          console.log(error.data);
-        });
-    } else {
+      const url = `${BASE_URL}/likeDelete/${publicationId}`;
+
       axios
         .delete(url, auth)
         .then((res) => {})
         .catch((error) => {
           console.log(error.data);
+          setIsLike(true);
+        });
+    } else {
+      const url = `${BASE_URL}/likePost/${publicationId}`;
+      const body = {};
+
+      axios
+        .post(url, body, auth)
+        .then((res) => {})
+        .catch((error) => {
+          console.log(error.data);
+          setIsLike(false);
         });
     }
   }
@@ -141,11 +164,11 @@ export default function Posts(props) {
         <img src={props.profilePic} alt="profilePic" />
         {isLike ? (
           <IconContext.Provider value={{ color: "red", size: "1.5em" }}>
-            <FaHeart onClick={() => Like(props.id)} />
+            <FaHeart onClick={() => handleLike(props.id)} />
           </IconContext.Provider>
         ) : (
           <IconContext.Provider value={{ color: "white", size: "1.5em" }}>
-            <FaRegHeart onClick={() => Like(props.id)} />
+            <FaRegHeart onClick={() => handleLike(props.id)} />
           </IconContext.Provider>
         )}
         <p>13 Likes</p>
