@@ -22,6 +22,9 @@ const Container = styled.div`
   margin-top: 211px;
   margin-left: 25px;
   padding: 15px;
+  @media (max-width: 821px) {
+    display: none;
+  }
 
   h1 {
     font-weight: 700;

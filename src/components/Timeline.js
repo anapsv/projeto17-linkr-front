@@ -1,5 +1,4 @@
 import styled from "styled-components";
-
 import Top from "./Header";
 import Trendings from "./Trendings";
 import Posts from "./Posts";
@@ -72,7 +71,7 @@ export default function Timeline() {
   }
 
   return (
-    <Container>
+    <>
       <Top />
       <TimelineContainer>
         <PostsContainer>
@@ -82,30 +81,32 @@ export default function Timeline() {
         </PostsContainer>
         <Trendings />
       </TimelineContainer>
-    </Container>
+    </>
   );
 }
 
-const Container = styled.div`
-  width: 100vw;
-  height: 100%;
-  background-color: #333333;
-  display: flex;
-  justify-content: center;
-`;
-
 const TimelineContainer = styled.div`
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
 `;
 
 const Title = styled.div`
+  width: fit-content;
+  height: fit-content;
   font-size: 43px;
   font-weight: bold;
   color: #ffffff;
   font-family: "Oswald", sans-serif;
   margin-top: 125px;
   margin-bottom: 43px;
+  @media (max-width: 821px) {
+    font-size: 33px;
+    padding-left: 17px;
+    margin-top: 100px;
+    margin-bottom: 30px;
+  }
 `;
 
 const PostsContainer = styled.div`

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { CgHeart } from "react-icons/cg";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { IconContext } from "react-icons";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
@@ -10,16 +10,25 @@ import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = "http://localhost:4000";
+
 export default function Posts(props) {
   const navigate = useNavigate();
 
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
   const textareaRef = useRef("");
-  const [{ token }] = useUserData();
+  const [{ token, userId }] = useUserData();
   const [modalIsOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [enterPress, setEnterPress] = useState(false);
+  const [isLike, setIsLike] = useState(false);
+
+  const auth = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
 
   function handleEnterPress(e) {
     setEnterPress(true);
@@ -54,17 +63,14 @@ export default function Posts(props) {
 
   function updatePostById(publicationId) {
     toggleEditing();
-    console.log(enterPress);
     if (enterPress) {
       const promise = axios.post(
-        "http://localhost:4000/editpost",
+        `${BASE_URL}/editpost`,
         {
           publicationId,
           description: textareaRef.current.value,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        auth
       );
       promise.then((res) => {
         props.fetchPosts();
@@ -88,8 +94,8 @@ export default function Posts(props) {
 
   function deletePostById(publicationId) {
     setLoading(true);
-    const promise = axios.delete(`http://localhost:4000/deletepost`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const promise = axios.delete(`${BASE_URL}/deletepost`, {
+      headers: auth.headers,
       data: {
         publicationId,
       },
@@ -106,13 +112,65 @@ export default function Posts(props) {
     });
   }
 
+  function getLikes(id) {
+    const url = `${BASE_URL}/likeGet/${id}`;
+
+    axios
+      .get(url, auth)
+      .then((res) => {
+        if (res.data) {
+          setIsLike(res.data);
+        }
+      })
+      .catch((error) => {
+        console.log(error.data);
+      });
+  }
+
+  useEffect(() => {
+    getLikes(props.id);
+  }, [props.id]);
+
+  function handleLike(publicationId) {
+    setIsLike(!isLike);
+
+    if (isLike) {
+      const url = `${BASE_URL}/likeDelete/${publicationId}`;
+
+      axios
+        .delete(url, auth)
+        .then((res) => {})
+        .catch((error) => {
+          console.log(error.data);
+          setIsLike(true);
+        });
+    } else {
+      const url = `${BASE_URL}/likePost/${publicationId}`;
+      const body = {};
+
+      axios
+        .post(url, body, auth)
+        .then((res) => {})
+        .catch((error) => {
+          console.log(error.data);
+          setIsLike(false);
+        });
+    }
+  }
+
   return (
     <Container>
       <LikeSection>
         <img src={props.profilePic} alt="profilePic" />
-        <IconContext.Provider value={{ color: "white", size: "2em" }}>
-          <CgHeart />
-        </IconContext.Provider>
+        {isLike ? (
+          <IconContext.Provider value={{ color: "red", size: "1.5em" }}>
+            <FaHeart onClick={() => handleLike(props.id)} />
+          </IconContext.Provider>
+        ) : (
+          <IconContext.Provider value={{ color: "white", size: "1.5em" }}>
+            <FaRegHeart onClick={() => handleLike(props.id)} />
+          </IconContext.Provider>
+        )}
         <p>13 Likes</p>
       </LikeSection>
       <ContentSection>
@@ -120,24 +178,26 @@ export default function Posts(props) {
           <h1 onClick={() => navigate("/user/" + props.userId)}>
             {props.username}
           </h1>
-          <div>
-            <TiPencil
-              onClick={() => updatePostById(props.id)}
-              color={"#ffffff"}
-              title={TiPencil}
-              height="16px"
-              width="16px"
-              onKeyDown={handleEscPress}
-              onKeyPress={handleEnterPress}
-            />
-            <CgTrashEmpty
-              onClick={openModal}
-              color={"#ffffff"}
-              title={CgTrashEmpty}
-              height="16px"
-              width="16px"
-            />
-          </div>
+          {props.userId === userId ? (
+            <div>
+              <TiPencil
+                onClick={() => updatePostById(props.id)}
+                color={"#ffffff"}
+                title={TiPencil}
+                height="16px"
+                width="16px"
+                onKeyDown={handleEscPress}
+                onKeyPress={handleEnterPress}
+              />
+              <CgTrashEmpty
+                onClick={openModal}
+                color={"#ffffff"}
+                title={CgTrashEmpty}
+                height="16px"
+                width="16px"
+              />
+            </div>
+          ) : null}
         </TopPost>
         <Modal
           isOpen={modalIsOpen}
@@ -195,6 +255,10 @@ const Container = styled.div`
   padding: 20px;
   display: flex;
   position: relative;
+  @media (max-width: 821px) {
+    width: 100%;
+    border-radius: 0px;
+  }
 `;
 
 const LikeSection = styled.div`
@@ -234,6 +298,9 @@ const TextArea = styled.textarea`
   font-weight: 400;
   font-size: 12px;
   color: #9b9595;
+  @media (max-width: 821px) {
+    width: 70%;
+  }
 `;
 
 const TopPost = styled.div`
@@ -332,6 +399,10 @@ const LinkMetadata = styled.a`
   border-radius: 11px;
   display: flex;
   justify-content: space-between;
+  @media (max-width: 821px) {
+    width: 100%;
+    overflow-y: scroll;
+  }
 `;
 
 const LinkInformation = styled.div`
