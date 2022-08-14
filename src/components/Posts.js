@@ -178,7 +178,7 @@ export default function Posts(props) {
           ></TextArea>
         ) : (
             <h2>
-              <ReactTagify tagStyle={{ color: 'red', fontFamily: 'Lato', fontWeight: 700, cursor: 'pointer' }} tagClicked={(tag) => goToHashtag(tag)}>
+              <ReactTagify tagStyle={{ color: '#FFFFFF', fontFamily: 'Lato', fontWeight: 700, cursor: 'pointer' }} tagClicked={(tag) => goToHashtag(tag)}>
                 {props.description} 
               </ReactTagify>
             </h2>

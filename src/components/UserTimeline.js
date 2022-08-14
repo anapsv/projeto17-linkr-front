@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useUserData } from "../contexts/UserDataContext";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
 import Trendings from "./Trendings";
 import Posts from "./Posts";
 import Top from "./Header";
@@ -11,7 +10,6 @@ import styled from "styled-components";
 export default function UserTimeline() {
   const [{ token }] = useUserData();
   const [publications, setPublications] = useState([]);
-  console.log(publications);
   const [isLoading, setIsLoading] = useState(false);
 
   const { id } = useParams();
@@ -67,7 +65,7 @@ export default function UserTimeline() {
       return <p>Loading...</p>;
     }
     if (!isLoading && publications.length === 0) {
-      return <p>There are no posts yes</p>;
+      return <p>There are no posts yet</p>;
     } else {
       return (
         <>

@@ -1,10 +1,64 @@
 import styled from "styled-components";
+import { useState, useEffect } from "react";
+import { useUserData } from "../contexts/UserDataContext";
+import axios from "axios";
 
 export default function Trendings() {
+  const [{ token }] = useUserData();
+  const [hashtags, setHashtags] = useState([])
+  const [isLoading, setIsLoading] = useState(false);
+  function trending(){
+    const url = `http://localhost:4000/trendings`;
+    const auth = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    axios
+      .get(url, auth)
+      .then((res) => {
+        setIsLoading(false);
+        setHashtags(res.data);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        alert(
+          "An error occured while trying to fetch the trendings, please refresh the page"
+        );
+        console.log(error.data);
+      });
+  }
+
+  useEffect(() => {
+    setIsLoading(true);
+    trending();
+  }, []);
+
+  function RenderHashtags(){
+    return hashtags.map((hashtag) => {
+      <p key={hashtag.id}>{"#  " + hashtag.name}</p>
+    })
+  }
+
+  function Loading() {
+    if (isLoading) {
+      return <p>Loading...</p>;
+    }
+    if (!isLoading && hashtags.length === 0) {
+      return <p>There are no hashtags yet</p>;
+    } else {
+      return (
+        <RenderHashtags />
+      );
+    }
+  }
+
   return (
     <Container>
       <h1>trending</h1>
       <Margin />
+      <Loading/>
       <p>#Javascript</p>
       <p>#html</p>
       <p>#css</p>
@@ -21,20 +75,21 @@ const Container = styled.div`
   border-radius: 16px;
   margin-top: 211px;
   margin-left: 25px;
-  padding: 15px;
 
   h1 {
     font-weight: 700;
     font-size: 27px;
     color: #ffffff;
     font-family: "Oswald", sans-serif;
+    margin: 15px;
   }
 
   p {
     font-weight: 700;
     font-size: 19px;
     color: #ffffff;
-    font-family: "Oswald", sans-serif;
+    font-family: "Lato", sans-serif;
+    margin-left: 15px;
     margin-bottom: 5px;
   }
 `;
