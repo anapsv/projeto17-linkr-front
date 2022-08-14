@@ -9,6 +9,7 @@ import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 import { useNavigate } from "react-router-dom";
+import ReactTooltip from 'react-tooltip';
 
 const BASE_URL = "http://localhost:4000";
 
@@ -23,6 +24,8 @@ export default function Posts(props) {
   const [loading, setLoading] = useState(false);
   const [enterPress, setEnterPress] = useState(false);
   const [isLike, setIsLike] = useState(false);
+  const [ count, setCount ] = useState(0);
+  const [ names, setNames ] = useState([]);
 
   const auth = {
     headers: {
@@ -129,6 +132,7 @@ export default function Posts(props) {
 
   useEffect(() => {
     getLikes(props.id);
+    getAllLikes(props.id);
   }, [props.id]);
 
   function handleLike(publicationId) {
@@ -158,6 +162,22 @@ export default function Posts(props) {
     }
   }
 
+  function getAllLikes(id) {
+    const url = `${BASE_URL}/allLikes/${id}`;
+    axios
+      .get(url, auth)
+      .then((res) => {
+        console.log(res.data);
+        setCount(res.data.numberOfLikes[0].count);       
+        setNames([res.data.peopleLiked[0].name, res.data.peopleLiked[1].name])
+        getLikes();
+      })
+      .catch((error) => {
+        //console.log(error);
+      })
+  }
+
+
   return (
     <Container>
       <LikeSection>
@@ -171,7 +191,24 @@ export default function Posts(props) {
             <FaRegHeart onClick={() => handleLike(props.id)} />
           </IconContext.Provider>
         )}
-        <p>13 Likes</p>
+        <p> { count > 0 ? `${count} likes` : `0 likes` } </p>
+        { isLike ? (
+          <ReactTooltip place="bottom" type="light">
+            Você
+            { names.length > 0
+              ? `, ${names[0]} and others ${count - 2} people`
+              : ` and others 0 people` }
+          </ReactTooltip>
+        ) : (
+          <ReactTooltip place="bottom" type="light">
+            { names.length > 1
+              ? `${names[0]}, ${names[1]} and others ${count - 2
+              } people`
+              : names.length === 1
+                ? `${names[0]} and others 0 people`
+                : "0 likes" }
+          </ReactTooltip>
+        ) }
       </LikeSection>
       <ContentSection>
         <TopPost>
