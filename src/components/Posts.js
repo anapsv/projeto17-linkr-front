@@ -195,6 +195,10 @@ const Container = styled.div`
   padding: 20px;
   display: flex;
   position: relative;
+  @media (max-width: 821px) {
+    width: 100%;
+    border-radius: 0px;
+  }
 `;
 
 const LikeSection = styled.div`
@@ -234,6 +238,9 @@ const TextArea = styled.textarea`
   font-weight: 400;
   font-size: 12px;
   color: #9b9595;
+  @media (max-width: 821px) {
+    width: 70%;
+  }
 `;
 
 const TopPost = styled.div`
@@ -332,6 +339,10 @@ const LinkMetadata = styled.a`
   border-radius: 11px;
   display: flex;
   justify-content: space-between;
+  @media (max-width: 821px) {
+    width: 100%;
+    overflow-y: scroll;
+  }
 `;
 
 const LinkInformation = styled.div`

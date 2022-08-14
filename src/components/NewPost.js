@@ -32,33 +32,33 @@ export default function NewPost({ fetchPosts }) {
   return (
     <Container>
       <ProfilePic>
-        <img src={profilePic} />
+        <img src={ profilePic } />
       </ProfilePic>
-      <Form onSubmit={publishNewPost}>
+      <Form onSubmit={ publishNewPost }>
         <h3>What are you going to share today?</h3>
         <input
           placeholder="http://..."
           type="url"
           required
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
+          value={ link }
+          onChange={ (e) => setLink(e.target.value) }
         />
         <textarea
           placeholder="Awesome article about #javascript"
           type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={ description }
+          onChange={ (e) => setDescription(e.target.value) }
         />
-        <button type="submit" disabled={loading}>
-          {loading ? "Publishing..." : "Publish"}
-        </button>
+        <Button type="submit" disabled={ loading }>
+          { loading ? "Publishing..." : "Publish" }
+        </Button>
       </Form>
     </Container>
   );
 }
 
 const Container = styled.div`
-  width: 610px;
+  width: 611px;
   height: 210px;
   border-radius: 10px;
   background-color: #ffffff;
@@ -67,10 +67,17 @@ const Container = styled.div`
   margin-top: 40px;
   margin-bottom: 30px;
   padding: 20px;
+  @media (max-width: 821px) {
+    width: 100%;
+    border-radius: 0px;
+  }
 `;
 
 const ProfilePic = styled.div`
   margin-right: 20px;
+  @media (max-width: 821px) {
+    display: none;
+  }
 
   img {
     height: 50px;
@@ -86,18 +93,28 @@ const ProfilePic = styled.div`
 `;
 const Form = styled.form`
   height: 100%;
-  width: 60%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   font-family: "Lato", sans-serif;
+  position: relative;
+  @media (max-width: 821px) {
+    align-items: center;
+    justify-content: center;
+  }
 
   h3 {
+    width: fit-content;
+    height: fit-content;
     font-family: "Lato";
     font-style: normal;
     font-weight: 300;
     font-size: 20px;
     color: #707070;
     margin-bottom: 15px;
+    @media (max-width: 821px) {
+      font-size: 17px;
+    }
   }
 
   input {
@@ -108,6 +125,9 @@ const Form = styled.form`
     padding: 7px;
     margin-bottom: 5px;
     border: 1px solid #efefef;
+    @media (max-width: 821px) {
+      width: 100%;
+    }
   }
 
   ::placeholder {
@@ -119,6 +139,9 @@ const Form = styled.form`
     line-height: 18px;
     border-radius: 5px;
     margin: 5px;
+    @media (max-width: 821px) {
+      width: 100%;
+    }
   }
 
   textarea {
@@ -130,19 +153,30 @@ const Form = styled.form`
     padding: 7px;
     border: 1px solid #efefef;
     margin-bottom: 5px;
+    @media (max-width: 821px) {
+      width: 100%;
+      height: 55px;
+    }
   }
+`;
 
-  button {
-    width: 110px;
-    height: 30px;
-    border-radius: 5px;
-    background-color: #1877f2;
-    color: #ffffff;
-    font-size: 14px;
-    line-height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #1877f2;
+const Button = styled.button`
+  width: 112px;
+  height: 31px;
+  border-radius: 5px;
+  background-color: #1877f2;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #1877f2;
+  margin-top: 5px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  @media (max-width: 821px) {
+    height: 22px;
   }
 `;
