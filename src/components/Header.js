@@ -182,22 +182,30 @@ const Header = styled.div`
 
 const SearchBar = styled.div`
   display: flex;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-around;
+  position: absolute;
+  left: 0;
+  top: 0;
+
 `
 const Search = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 564px;
+  position: relative;
+  padding-top: 40px;
+
 `
 
 const SearchMenu = styled.ul`
   width: 564px;
-  padding-top: 20px;
   border-radius: 8px;
   background-color: #E7E7E7;
-  position: fixed;
-  left: 371px;
-  top: 46px;
+  position: absolute;
+  left: 0;
+  top: 0;
   z-index: -1;
 
   li{
