@@ -1,9 +1,10 @@
 import styled from "styled-components";
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserData, deleteUserDataInLocalStorage } from "../contexts/UserDataContext";
 import axios from "axios";
 import { IoIosArrowUp, IoIosArrowDown, IoIosSad } from "react-icons/io";
+import { IoSearch } from "react-icons/io5";
 import { IconContext } from "react-icons";
 import { DebounceInput } from "react-debounce-input";
 
@@ -11,53 +12,12 @@ export default function Top() {
   const [{ name, profilePic, token }, setUserData] = useUserData();
   const [menuDisplay, setMenuDisplay] = React.useState(false);
   const [searchDisplay, setSearchDisplay] = React.useState(false);
-  const [users, setUsers] = React.useState(null)
-  const [searchUsers, setSearchUsers] = React.useState(null);
+  const [users, setUsers] = React.useState([])
+  const [nameSearch, setNameSearch] = React.useState("");
   const navigate = useNavigate();
-
-  function checkMenu() {
-    if (menuDisplay) {
-      setMenuDisplay(false);
-    }
-  }
-  
-  function menu() {
-    if (menuDisplay) {
-      setMenuDisplay(false);
-    } else {
-      setMenuDisplay(true);
-    }
-  }
 
   function onSearch(){
     setSearchDisplay(true);
-  }
-
-  function inSearch(e){
-    e.preventDefault();
-    setSearchDisplay(true);
-    console.log(searchUsers)
-    const auth = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    const requisition = axios.post("http://localhost:4000/search", {searchUsers}, auth)
-    requisition.then((res)=>{
-      setUsers(res.data);
-    })
-    requisition.catch((error)=>{
-      alert("Ocorreu um erro");
-      console.log(error.data);
-    })
-  }
-
-  function offSearch(){
-      setSearchDisplay(false);
-  }
-  
-  function goToUser(id){
-      navigate(`/user/${id}`);
   }
 
   function RenderSearchs(){
@@ -72,6 +32,44 @@ export default function Top() {
       })
     }
     return (<li><IoIosSad style={{marginRight: "40px", color: "#707070"}}/>No users found!</li>)
+  }
+
+  function searchUser(e){
+    const body = { nameSearch };
+    const requisition = axios.post(`http://localhost:4000/search`, body)
+    requisition.then((res)=>{
+      setUsers(res.data);
+    })
+    requisition.catch((error)=>{
+      alert("Ocorreu um erro");
+      console.log(error)
+    })
+  }
+  
+  useEffect((nameSearch) =>{
+    searchUser();
+  }, [nameSearch])
+
+  function offSearch(){
+      setSearchDisplay(false);
+  }
+  
+  function goToUser(id){
+      navigate(`/user/${id}`);
+  }
+
+  function checkMenu() {
+    if (menuDisplay) {
+      setMenuDisplay(false);
+    }
+  }
+  
+  function menu() {
+    if (menuDisplay) {
+      setMenuDisplay(false);
+    } else {
+      setMenuDisplay(true);
+    }
   }
 
   function logout() {
@@ -92,15 +90,20 @@ export default function Top() {
     });
   }
 
+  function goToTimeline () {
+    navigate('/timeline')
+  }
+
   return (
     <IconContext.Provider value={{ color: "white", size: "2em" }}>
       <Container>
         <Header onClick={checkMenu}>
-          <h1>linkr</h1>
-          <Search onClick={onSearch}>
-            <form onSubmit={inSearch}>
-              <DebounceInput type={"search"} placeholder={"Search for people"} minLength={3} value={searchUsers} debounceTimeout={300} onChange={(e)=> setSearchUsers(e.target.value)}/>
-            </form>
+          <h1 onClick={goToTimeline}>linkr</h1>
+          <Search>
+            <SearchBar onClick={onSearch}>
+              <DebounceInput type="text" placeholder="Search for people" minLength={3} value={nameSearch} debounceTimeout={300} onChange={(e) => { setNameSearch(e.target.value); if (nameSearch.length >= 3) { searchUser(e); } else{ setUsers([]); }}}/>
+            </SearchBar>
+            <IoSearch type="submit" color="#333333" size={30} onClick={searchUser}/>
             {searchDisplay ? 
               <SearchMenu onMouseLeave={offSearch}>
                 {users? <RenderSearchs/> : <></>}
@@ -177,9 +180,14 @@ const Header = styled.div`
   height: 100%;
 `;
 
+const SearchBar = styled.div`
+  display: flex;
+  justify-content: center;
+`
 const Search = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
 `
 
 const SearchMenu = styled.ul`

@@ -4,7 +4,6 @@ import { IconContext } from "react-icons";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useUserData } from "../contexts/UserDataContext";
-import NewPost from "./NewPost";
 import { CgTrashEmpty } from "react-icons/cg";
 import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
