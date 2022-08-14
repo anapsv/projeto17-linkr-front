@@ -18,7 +18,7 @@ export default function Posts(props) {
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
   const textareaRef = useRef("");
-  const [{ token }] = useUserData();
+  const [{ token, userId }] = useUserData();
   const [modalIsOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [enterPress, setEnterPress] = useState(false);
@@ -178,24 +178,26 @@ export default function Posts(props) {
           <h1 onClick={() => navigate("/user/" + props.userId)}>
             {props.username}
           </h1>
-          <div>
-            <TiPencil
-              onClick={() => updatePostById(props.id)}
-              color={"#ffffff"}
-              title={TiPencil}
-              height="16px"
-              width="16px"
-              onKeyDown={handleEscPress}
-              onKeyPress={handleEnterPress}
-            />
-            <CgTrashEmpty
-              onClick={openModal}
-              color={"#ffffff"}
-              title={CgTrashEmpty}
-              height="16px"
-              width="16px"
-            />
-          </div>
+          {props.userId === userId ? (
+            <div>
+              <TiPencil
+                onClick={() => updatePostById(props.id)}
+                color={"#ffffff"}
+                title={TiPencil}
+                height="16px"
+                width="16px"
+                onKeyDown={handleEscPress}
+                onKeyPress={handleEnterPress}
+              />
+              <CgTrashEmpty
+                onClick={openModal}
+                color={"#ffffff"}
+                title={CgTrashEmpty}
+                height="16px"
+                width="16px"
+              />
+            </div>
+          ) : null}
         </TopPost>
         <Modal
           isOpen={modalIsOpen}
