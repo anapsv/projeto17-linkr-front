@@ -6,6 +6,7 @@ import Trendings from "./Trendings";
 import Posts from "./Posts";
 import Top from "./Header";
 import styled from "styled-components";
+import { APIHost } from '../config/config';
 
 export default function HashtagTimeline(){
       const [{ token }] = useUserData();
@@ -15,7 +16,7 @@ export default function HashtagTimeline(){
       const { hashtag } = useParams();
     
       function fetchPosts() {
-        const url = `http://localhost:4000/hashtag/${hashtag}`;
+        const url = APIHost + `hashtag/${hashtag}`;
         const auth = {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -14,7 +14,7 @@ export default function NewPost({ fetchPosts }) {
     e.preventDefault();
     setLoading(true);
     const promise = axios.post(
-      `http://localhost:4000/publish`,
+      APIHost + `publish`,
       { link: link, description: description },
       { headers: { Authorization: `Bearer ${token}` } }
     );
