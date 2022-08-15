@@ -15,7 +15,7 @@ export default function Timeline() {
   const [isLoading, setIsLoading] = useState(false);
 
   async function fetchPosts() {
-    const url = `http://localhost:4000/timeline`;
+    const url = APIHost + `timeline`;
     const auth = {
       headers: {
         Authorization: `Bearer ${token}`,

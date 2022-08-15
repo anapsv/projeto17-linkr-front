@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useUserData } from "../contexts/UserDataContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { APIHost } from '../config/config';
 
 export default function Trendings() {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ export default function Trendings() {
   const [hashtags, setHashtags] = useState([])
   const [isLoading, setIsLoading] = useState(false);
   function trending(){
-    const url = `http://localhost:4000/trendings`;
+    const url = APIHost + `trendings`;
     const auth = {
       headers: {
         Authorization: `Bearer ${token}`,

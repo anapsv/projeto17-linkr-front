@@ -8,23 +8,23 @@ import { CgTrashEmpty } from "react-icons/cg";
 import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useResolvedPath } from "react-router-dom";
+import ReactTooltip from 'react-tooltip';
 import { ReactTagify } from "react-tagify";
 import { APIHost } from "../config/config";
 
-// const BASE_URL = "http://localhost:4000";
-
 export default function Posts(props) {
   const navigate = useNavigate();
-
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
   const textareaRef = useRef("");
-  const [{ token, userId }] = useUserData();
+  const [{ token, userId, name }] = useUserData();
   const [modalIsOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [enterPress, setEnterPress] = useState(false);
   const [isLike, setIsLike] = useState(false);
+  const [ count, setCount ] = useState(0);
+  const [ names, setNames ] = useState([]);
 
   const auth = {
     headers: {
@@ -67,7 +67,7 @@ export default function Posts(props) {
     toggleEditing();
     if (enterPress) {
       const promise = axios.post(
-        `http://localhost:4000/editpost`,
+        APIHost + `editpost`,
         {
           publicationId,
           description: textareaRef.current.value,
@@ -96,7 +96,7 @@ export default function Posts(props) {
 
   function deletePostById(publicationId) {
     setLoading(true);
-    const promise = axios.delete(`http://localhost:4000/deletepost`, {
+    const promise = axios.delete(APIHost + `deletepost`, {
       headers: auth.headers,
       data: {
         publicationId,
@@ -115,7 +115,7 @@ export default function Posts(props) {
   }
 
   function getLikes(id) {
-    const url = `http://localhost:4000/likeGet/${id}`;
+    const url = APIHost + `likeGet/${id}`;
 
     axios
       .get(url, auth)
@@ -131,13 +131,14 @@ export default function Posts(props) {
 
   useEffect(() => {
     getLikes(props.id);
+    getAllLikes(props.id);
   }, [props.id]);
 
   function handleLike(publicationId) {
     setIsLike(!isLike);
 
     if (isLike) {
-      const url = `http://localhost:4000/likeDelete/${publicationId}`;
+      const url = APIHost + `likeDelete/${publicationId}`;
 
       axios
         .delete(url, auth)
@@ -147,7 +148,7 @@ export default function Posts(props) {
           setIsLike(true);
         });
     } else {
-      const url = `http://localhost:4000/likePost/${publicationId}`;
+      const url = APIHost + `likePost/${publicationId}`;
       const body = {};
 
       axios
@@ -164,6 +165,47 @@ export default function Posts(props) {
     navigate(`/hashtag/${tag.replace("#", "")}`);
   }
 
+  function getAllLikes(id) {
+    const url = APIHost + `allLikes/${id}`;
+    axios
+      .get(url, auth)
+      .then((res) => {
+        setCount(res.data.numberOfLikes);       
+        setNames(res.data.peopleLiked.map((item) => item.name));
+      })
+      .catch((error) => {
+        //console.log(error);
+      })
+  }
+
+  function getPeopleThatLiked () {
+    const nameIsMine = names.findIndex((item) => item === name);
+    let usersThatLiked = [];
+    if (nameIsMine !== -1 ) {
+      usersThatLiked = names.splice(nameIsMine, 1);
+      usersThatLiked.unshift('You')
+    }
+    else {
+      usersThatLiked = names;
+    }
+    console.log(count);
+    console.log(usersThatLiked)
+    if (count === 2) {
+      return `${usersThatLiked[0]}, ${usersThatLiked[1]} liked this post`
+    }
+    else if (count === 1) {
+      return `${usersThatLiked[0]} liked this post`
+    }
+    else if (count === 0 ) {
+      return `0 people liked this post`
+    }
+    else {
+      return `${usersThatLiked[0]}, ${usersThatLiked[1]} and ${count -2} liked this post`
+    }
+  }
+
+
+
   return (
     <Container>
       <LikeSection>
@@ -177,7 +219,8 @@ export default function Posts(props) {
             <FaRegHeart onClick={() => handleLike(props.id)} />
           </IconContext.Provider>
         )}
-        <p>13 Likes</p>
+        <p data-tip={getPeopleThatLiked()} data-iscapture="true" currentItem={true}> { count > 0 ? `${count} likes` : `0 likes` } </p>
+          <ReactTooltip place="bottom" type="light" />
       </LikeSection>
       <ContentSection>
         <TopPost>

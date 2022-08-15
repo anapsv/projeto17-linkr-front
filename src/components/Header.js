@@ -42,7 +42,7 @@ export default function Top() {
       },
     };
     const body = { nameSearch };
-    const requisition = axios.post(`http://localhost:4000/search`, body,  auth)
+    const requisition = axios.post(APIHost + `search`, body,  auth)
     requisition.then((res)=>{
       setUsers(res.data);
     })
@@ -84,7 +84,7 @@ export default function Top() {
         Authorization: `Bearer ${token}`,
       },
     };
-    const requisition = axios.delete(`http://localhost:4000/session`, auth);
+    const requisition = axios.delete(APIHost + `session`, auth);
     requisition.then((response) => {
       setUserData(null);
       deleteUserDataInLocalStorage();
@@ -108,8 +108,8 @@ export default function Top() {
           <Search>
             <SearchBar onClick={onSearch}>
               <DebounceInput type="text" placeholder="Search for people" minLength={3} value={nameSearch} debounceTimeout={300} onChange={(e) => { setNameSearch(e.target.value); if (nameSearch.length >= 3) { searchUser(e); } else{ setUsers([]); }}}/>
-            </SearchBar>
-            <IoSearch type="submit" color="#333333" size={30} onClick={searchUser}/>
+              <IoSearch type="submit" color="#ffffff" size={30} />
+            </SearchBar>            
             {searchDisplay ? 
               <SearchMenu onMouseLeave={offSearch}>
                 {users? <RenderSearchs/> : <></>}
@@ -209,6 +209,7 @@ const Search = styled.div`
 const SearchMenu = styled.ul`
   width: 564px;
   border-radius: 8px;
+  margin-top: 30px;
   background-color: #E7E7E7;
   position: absolute;
   left: 0;

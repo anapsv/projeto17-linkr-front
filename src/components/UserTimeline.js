@@ -16,7 +16,7 @@ export default function UserTimeline() {
   const { id } = useParams();
 
   function fetchPosts() {
-    const url = `http://localhost:4000/user/${id}`;
+    const url = APIHost + `user/${id}`;
     const auth = {
       headers: {
         Authorization: `Bearer ${token}`,
