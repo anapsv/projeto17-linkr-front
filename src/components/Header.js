@@ -36,8 +36,13 @@ export default function Top() {
   }
 
   function searchUser(e){
+    const auth = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
     const body = { nameSearch };
-    const requisition = axios.post(`${APIHost}search`, body)
+    const requisition = axios.post(`http://localhost:4000/search`, body,  auth)
     requisition.then((res)=>{
       setUsers(res.data);
     })
@@ -79,7 +84,7 @@ export default function Top() {
         Authorization: `Bearer ${token}`,
       },
     };
-    const requisition = axios.delete(`${APIHost}session`, auth);
+    const requisition = axios.delete(`http://localhost:4000/session`, auth);
     requisition.then((response) => {
       setUserData(null);
       deleteUserDataInLocalStorage();

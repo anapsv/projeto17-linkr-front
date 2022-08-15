@@ -9,6 +9,7 @@ import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 import { useNavigate } from "react-router-dom";
+import { ReactTagify } from "react-tagify";
 import { APIHost } from "../config/config";
 
 // const BASE_URL = "http://localhost:4000";
@@ -66,7 +67,7 @@ export default function Posts(props) {
     toggleEditing();
     if (enterPress) {
       const promise = axios.post(
-        `${APIHost}/editpost`,
+        `http://localhost:4000/editpost`,
         {
           publicationId,
           description: textareaRef.current.value,
@@ -95,7 +96,7 @@ export default function Posts(props) {
 
   function deletePostById(publicationId) {
     setLoading(true);
-    const promise = axios.delete(`${APIHost}/deletepost`, {
+    const promise = axios.delete(`http://localhost:4000/deletepost`, {
       headers: auth.headers,
       data: {
         publicationId,
@@ -114,7 +115,7 @@ export default function Posts(props) {
   }
 
   function getLikes(id) {
-    const url = `${APIHost}/likeGet/${id}`;
+    const url = `http://localhost:4000/likeGet/${id}`;
 
     axios
       .get(url, auth)
@@ -136,7 +137,7 @@ export default function Posts(props) {
     setIsLike(!isLike);
 
     if (isLike) {
-      const url = `${APIHost}/likeDelete/${publicationId}`;
+      const url = `http://localhost:4000/likeDelete/${publicationId}`;
 
       axios
         .delete(url, auth)
@@ -146,7 +147,7 @@ export default function Posts(props) {
           setIsLike(true);
         });
     } else {
-      const url = `${APIHost}/likePost/${publicationId}`;
+      const url = `http://localhost:4000/likePost/${publicationId}`;
       const body = {};
 
       axios
@@ -157,6 +158,10 @@ export default function Posts(props) {
           setIsLike(false);
         });
     }
+  }
+
+  function goToHashtag(tag){
+    navigate(`/hashtag/${tag.replace("#", "")}`);
   }
 
   return (
@@ -232,12 +237,18 @@ export default function Posts(props) {
             defaultValue={props.description}
           ></TextArea>
         ) : (
-          <h2>{props.description}</h2>
+            <h2>
+              <ReactTagify tagStyle={{ color: '#FFFFFF', fontFamily: 'Lato', fontWeight: 700, cursor: 'pointer' }} tagClicked={(tag) => goToHashtag(tag)}>
+                {props.description} 
+              </ReactTagify>
+            </h2>
         )}
         <LinkMetadata href={props.link} target="_blank">
           <LinkInformation>
             <LinkTitle>{props.urlTitle}</LinkTitle>
-            <LinkDescription>{props.urlDescription}</LinkDescription>
+            
+              <LinkDescription>{props.urlDescription}</LinkDescription>
+            
             <LinkUrl>{props.link}</LinkUrl>
           </LinkInformation>
           <LinkImage src={props.urlImage} />

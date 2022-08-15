@@ -11,13 +11,12 @@ import { APIHost } from "../config/config";
 export default function UserTimeline() {
   const [{ token }] = useUserData();
   const [publications, setPublications] = useState([]);
-  console.log(publications);
   const [isLoading, setIsLoading] = useState(false);
 
   const { id } = useParams();
 
   function fetchPosts() {
-    const url = `${APIHost}user/${id}`;
+    const url = `http://localhost:4000/user/${id}`;
     const auth = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -42,7 +41,7 @@ export default function UserTimeline() {
   useEffect(() => {
     setIsLoading(true);
     fetchPosts();
-  }, []);
+  }, [id]);
 
   function RenderPosts() {
     return publications.map((publi) => (
@@ -67,7 +66,7 @@ export default function UserTimeline() {
       return <p>Loading...</p>;
     }
     if (!isLoading && publications.length === 0) {
-      return <p>There are no posts yes</p>;
+      return <p>There are no posts yet</p>;
     } else {
       return (
         <>

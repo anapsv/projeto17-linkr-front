@@ -17,7 +17,7 @@ export default function SignUp() {
   function signUp(e) {
     e.preventDefault();
     setDisable(true);
-    const promise = axios.post(`${APIHost}sign-up`, {
+    const promise = axios.post(`http://localhost:4000/sign-up`, {
       email: data.email,
       password: data.password,
       username: data.username,

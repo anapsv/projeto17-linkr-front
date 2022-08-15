@@ -6,6 +6,7 @@ import SignIn from "./components/signIn.js";
 import { UserDataProvider } from "./contexts/UserDataContext";
 import Timeline from "./components/Timeline";
 import UserTimeline from "./components/UserTimeline";
+import HashtagTimeline from  "./components/HashtagTimeline";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/timeline" element={<Timeline />} />
           <Route path="/user/:id" element={<UserTimeline />} />
+          <Route path="/hashtag/:hashtag" element={< HashtagTimeline/>} />
         </Routes>
       </UserDataProvider>
     </BrowserRouter>

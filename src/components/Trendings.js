@@ -1,15 +1,66 @@
 import styled from "styled-components";
+import { useState, useEffect } from "react";
+import { useUserData } from "../contexts/UserDataContext";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Trendings() {
+  const navigate = useNavigate();
+  const [{ token }] = useUserData();
+  const [hashtags, setHashtags] = useState([])
+  const [isLoading, setIsLoading] = useState(false);
+  function trending(){
+    const url = `http://localhost:4000/trendings`;
+    const auth = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    axios
+      .get(url, auth)
+      .then((res) => {
+        setIsLoading(false);
+        setHashtags(res.data);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        alert(
+          "An error occured while trying to fetch the trendings, please refresh the page"
+        );
+        console.log(error.data);
+      });
+  }
+
+  useEffect(() => {
+    setIsLoading(true);
+    trending();
+  }, []);
+
+  function RenderHashtags(){
+    return hashtags.map((hashtag, i = 0) => {
+      return <p key={i++} onClick={() => navigate(`/hashtag/${hashtag.hashtag}`)}>{"#  " + hashtag.hashtag}</p>
+    })
+  }
+
+  function Loading() {
+    if (isLoading) {
+      return <p>Loading...</p>;
+    }
+    if (hashtags.length === 0) {
+      return <p>There are no hashtags yet</p>;
+    } else {
+      return (
+        <RenderHashtags />
+      );
+    }
+  }
+
   return (
     <Container>
       <h1>trending</h1>
       <Margin />
-      <p>#Javascript</p>
-      <p>#html</p>
-      <p>#css</p>
-      <p>#mobile</p>
-      <p>#sql</p>
+      <Loading/>
     </Container>
   );
 }
@@ -31,14 +82,17 @@ const Container = styled.div`
     font-size: 27px;
     color: #ffffff;
     font-family: "Oswald", sans-serif;
+    margin: 15px;
   }
 
   p {
     font-weight: 700;
     font-size: 19px;
     color: #ffffff;
-    font-family: "Oswald", sans-serif;
-    margin-bottom: 5px;
+    font-family: "Lato", sans-serif;
+    margin-left: 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
   }
 `;
 
