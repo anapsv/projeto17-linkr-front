@@ -6,6 +6,7 @@ import NewPost from "./NewPost";
 import { useUserData } from "../contexts/UserDataContext";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { APIHost } from "../config/config";
 
 export default function Timeline() {
   const [{ token }] = useUserData();
@@ -14,7 +15,7 @@ export default function Timeline() {
   const [isLoading, setIsLoading] = useState(false);
 
   async function fetchPosts() {
-    const url = "http://localhost:4000/timeline";
+    const url = `${APIHost}timeline`;
     const auth = {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -7,6 +7,7 @@ import { IoIosArrowUp, IoIosArrowDown, IoIosSad } from "react-icons/io";
 import { IoSearch } from "react-icons/io5";
 import { IconContext } from "react-icons";
 import { DebounceInput } from "react-debounce-input";
+import { APIHost } from '../config/config';
 
 export default function Top() {
   const [{ name, profilePic, token }, setUserData] = useUserData();
@@ -36,7 +37,7 @@ export default function Top() {
 
   function searchUser(e){
     const body = { nameSearch };
-    const requisition = axios.post(`http://localhost:4000/search`, body)
+    const requisition = axios.post(`${APIHost}search`, body)
     requisition.then((res)=>{
       setUsers(res.data);
     })
@@ -78,7 +79,7 @@ export default function Top() {
         Authorization: `Bearer ${token}`,
       },
     };
-    const requisition = axios.delete("http://localhost:4000/session", auth);
+    const requisition = axios.delete(`${APIHost}session`, auth);
     requisition.then((response) => {
       setUserData(null);
       deleteUserDataInLocalStorage();

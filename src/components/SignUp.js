@@ -2,6 +2,7 @@ import styled from "styled-components";
 import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { APIHost } from "../config/config";
 
 export default function SignUp() {
   const [data, setData] = useState({
@@ -16,8 +17,7 @@ export default function SignUp() {
   function signUp(e) {
     e.preventDefault();
     setDisable(true);
-    //https://projeto-linkr17.herokuapp.com/
-    const promise = axios.post("http://localhost:4000/sign-up", {
+    const promise = axios.post(`${APIHost}sign-up`, {
       email: data.email,
       password: data.password,
       username: data.username,

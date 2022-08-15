@@ -9,8 +9,9 @@ import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 import { useNavigate } from "react-router-dom";
+import { APIHost } from "../config/config";
 
-const BASE_URL = "http://localhost:4000";
+// const BASE_URL = "http://localhost:4000";
 
 export default function Posts(props) {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ export default function Posts(props) {
     toggleEditing();
     if (enterPress) {
       const promise = axios.post(
-        `${BASE_URL}/editpost`,
+        `${APIHost}/editpost`,
         {
           publicationId,
           description: textareaRef.current.value,
@@ -94,7 +95,7 @@ export default function Posts(props) {
 
   function deletePostById(publicationId) {
     setLoading(true);
-    const promise = axios.delete(`${BASE_URL}/deletepost`, {
+    const promise = axios.delete(`${APIHost}/deletepost`, {
       headers: auth.headers,
       data: {
         publicationId,
@@ -113,7 +114,7 @@ export default function Posts(props) {
   }
 
   function getLikes(id) {
-    const url = `${BASE_URL}/likeGet/${id}`;
+    const url = `${APIHost}/likeGet/${id}`;
 
     axios
       .get(url, auth)
@@ -135,7 +136,7 @@ export default function Posts(props) {
     setIsLike(!isLike);
 
     if (isLike) {
-      const url = `${BASE_URL}/likeDelete/${publicationId}`;
+      const url = `${APIHost}/likeDelete/${publicationId}`;
 
       axios
         .delete(url, auth)
@@ -145,7 +146,7 @@ export default function Posts(props) {
           setIsLike(true);
         });
     } else {
-      const url = `${BASE_URL}/likePost/${publicationId}`;
+      const url = `${APIHost}/likePost/${publicationId}`;
       const body = {};
 
       axios

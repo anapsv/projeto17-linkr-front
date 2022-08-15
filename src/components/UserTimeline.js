@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { useUserData } from "../contexts/UserDataContext";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
 import Trendings from "./Trendings";
 import Posts from "./Posts";
 import Top from "./Header";
 import styled from "styled-components";
+import { APIHost } from "../config/config";
 
 export default function UserTimeline() {
   const [{ token }] = useUserData();
@@ -17,7 +17,7 @@ export default function UserTimeline() {
   const { id } = useParams();
 
   function fetchPosts() {
-    const url = `http://localhost:4000/user/${id}`;
+    const url = `${APIHost}user/${id}`;
     const auth = {
       headers: {
         Authorization: `Bearer ${token}`,

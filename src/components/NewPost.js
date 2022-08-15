@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import styled from "styled-components";
 import { useUserData } from "../contexts/UserDataContext";
+import { APIHost } from "../config/config";
 
 export default function NewPost({ fetchPosts }) {
   const [loading, setLoading] = useState(false);
@@ -13,7 +14,7 @@ export default function NewPost({ fetchPosts }) {
     e.preventDefault();
     setLoading(true);
     const promise = axios.post(
-      "http://localhost:4000/publish",
+      `${APIHost}publish`,
       { link: link, description: description },
       { headers: { Authorization: `Bearer ${token}` } }
     );
