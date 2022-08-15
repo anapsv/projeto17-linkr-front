@@ -8,18 +8,17 @@ import { CgTrashEmpty } from "react-icons/cg";
 import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useResolvedPath } from "react-router-dom";
 import ReactTooltip from 'react-tooltip';
 
 const BASE_URL = "http://localhost:4000";
 
 export default function Posts(props) {
   const navigate = useNavigate();
-
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
   const textareaRef = useRef("");
-  const [{ token, userId }] = useUserData();
+  const [{ token, userId, name }] = useUserData();
   const [modalIsOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [enterPress, setEnterPress] = useState(false);
@@ -167,15 +166,40 @@ export default function Posts(props) {
     axios
       .get(url, auth)
       .then((res) => {
-        console.log(res.data);
-        setCount(res.data.numberOfLikes[0].count);       
-        setNames([res.data.peopleLiked[0].name, res.data.peopleLiked[1].name])
-        getLikes();
+        setCount(res.data.numberOfLikes);       
+        setNames(res.data.peopleLiked.map((item) => item.name));
       })
       .catch((error) => {
         //console.log(error);
       })
   }
+
+  function getPeopleThatLiked () {
+    const nameIsMine = names.findIndex((item) => item === name);
+    let usersThatLiked = [];
+    if (nameIsMine !== -1 ) {
+      usersThatLiked = names.splice(nameIsMine, 1);
+      usersThatLiked.unshift('You')
+    }
+    else {
+      usersThatLiked = names;
+    }
+    console.log(count);
+    console.log(usersThatLiked)
+    if (count === 2) {
+      return `${usersThatLiked[0]}, ${usersThatLiked[1]} liked this post`
+    }
+    else if (count === 1) {
+      return `${usersThatLiked[0]} liked this post`
+    }
+    else if (count === 0 ) {
+      return `0 people liked this post`
+    }
+    else {
+      return `${usersThatLiked[0]}, ${usersThatLiked[1]} and ${count -2} liked this post`
+    }
+  }
+
 
 
   return (
@@ -191,24 +215,8 @@ export default function Posts(props) {
             <FaRegHeart onClick={() => handleLike(props.id)} />
           </IconContext.Provider>
         )}
-        <p> { count > 0 ? `${count} likes` : `0 likes` } </p>
-        { isLike ? (
-          <ReactTooltip place="bottom" type="light">
-            Você
-            { names.length > 0
-              ? `, ${names[0]} and others ${count - 2} people`
-              : ` and others 0 people` }
-          </ReactTooltip>
-        ) : (
-          <ReactTooltip place="bottom" type="light">
-            { names.length > 1
-              ? `${names[0]}, ${names[1]} and others ${count - 2
-              } people`
-              : names.length === 1
-                ? `${names[0]} and others 0 people`
-                : "0 likes" }
-          </ReactTooltip>
-        ) }
+        <p data-tip={getPeopleThatLiked()} data-iscapture="true" currentItem={true}> { count > 0 ? `${count} likes` : `0 likes` } </p>
+          <ReactTooltip place="bottom" type="light" />
       </LikeSection>
       <ContentSection>
         <TopPost>
