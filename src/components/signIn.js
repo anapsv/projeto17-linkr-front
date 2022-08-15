@@ -6,6 +6,7 @@ import {
   useUserData,
   saveUserDataInLocalStorage,
 } from "../contexts/UserDataContext";
+import { APIHost } from "../config/config";
 
 export default function SignIn() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
@@ -17,8 +18,7 @@ export default function SignIn() {
     e.preventDefault();
 
     setDisable(true);
-    //https://projeto-linkr17.herokuapp.com/
-    const promise = axios.post("http://localhost:4000/signin", {
+    const promise = axios.post(`http://localhost:4000/signin`, {
       email: credentials.email,
       password: credentials.password,
     });

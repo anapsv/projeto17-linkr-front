@@ -6,6 +6,7 @@ import NewPost from "./NewPost";
 import { useUserData } from "../contexts/UserDataContext";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { APIHost } from "../config/config";
 
 export default function Timeline() {
   const [{ token }] = useUserData();
@@ -14,7 +15,7 @@ export default function Timeline() {
   const [isLoading, setIsLoading] = useState(false);
 
   async function fetchPosts() {
-    const url = "http://localhost:4000/timeline";
+    const url = `http://localhost:4000/timeline`;
     const auth = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -71,7 +72,7 @@ export default function Timeline() {
   }
 
   return (
-    <Container>
+    <>
       <Top />
       <TimelineContainer>
         <PostsContainer>
@@ -81,30 +82,32 @@ export default function Timeline() {
         </PostsContainer>
         <Trendings />
       </TimelineContainer>
-    </Container>
+    </>
   );
 }
 
-const Container = styled.div`
-  width: 100vw;
-  height: 100%;
-  background-color: #333333;
-  display: flex;
-  justify-content: center;
-`;
-
 const TimelineContainer = styled.div`
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
 `;
 
 const Title = styled.div`
+  width: fit-content;
+  height: fit-content;
   font-size: 43px;
   font-weight: bold;
   color: #ffffff;
   font-family: "Oswald", sans-serif;
   margin-top: 125px;
   margin-bottom: 43px;
+  @media (max-width: 821px) {
+    font-size: 33px;
+    padding-left: 17px;
+    margin-top: 100px;
+    margin-bottom: 30px;
+  }
 `;
 
 const PostsContainer = styled.div`

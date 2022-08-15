@@ -6,6 +6,7 @@ import Trendings from "./Trendings";
 import Posts from "./Posts";
 import Top from "./Header";
 import styled from "styled-components";
+import { APIHost } from "../config/config";
 
 export default function UserTimeline() {
   const [{ token }] = useUserData();
@@ -40,7 +41,7 @@ export default function UserTimeline() {
   useEffect(() => {
     setIsLoading(true);
     fetchPosts();
-  }, []);
+  }, [id]);
 
   function RenderPosts() {
     return publications.map((publi) => (

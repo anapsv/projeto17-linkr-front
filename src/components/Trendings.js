@@ -72,6 +72,10 @@ const Container = styled.div`
   border-radius: 16px;
   margin-top: 211px;
   margin-left: 25px;
+  padding: 15px;
+  @media (max-width: 821px) {
+    display: none;
+  }
 
   h1 {
     font-weight: 700;
@@ -87,7 +91,7 @@ const Container = styled.div`
     color: #ffffff;
     font-family: "Lato", sans-serif;
     margin-left: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     cursor: pointer;
   }
 `;

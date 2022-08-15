@@ -7,6 +7,7 @@ import { IoIosArrowUp, IoIosArrowDown, IoIosSad } from "react-icons/io";
 import { IoSearch } from "react-icons/io5";
 import { IconContext } from "react-icons";
 import { DebounceInput } from "react-debounce-input";
+import { APIHost } from '../config/config';
 
 export default function Top() {
   const [{ name, profilePic, token }, setUserData] = useUserData();
@@ -35,8 +36,13 @@ export default function Top() {
   }
 
   function searchUser(e){
+    const auth = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
     const body = { nameSearch };
-    const requisition = axios.post(`http://localhost:4000/search`, body)
+    const requisition = axios.post(`http://localhost:4000/search`, body,  auth)
     requisition.then((res)=>{
       setUsers(res.data);
     })
@@ -78,7 +84,7 @@ export default function Top() {
         Authorization: `Bearer ${token}`,
       },
     };
-    const requisition = axios.delete("http://localhost:4000/session", auth);
+    const requisition = axios.delete(`http://localhost:4000/session`, auth);
     requisition.then((response) => {
       setUserData(null);
       deleteUserDataInLocalStorage();
@@ -133,6 +139,7 @@ const Container = styled.div`
   height: 72px;
   width: 100%;
   background-color: #151515;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   position: fixed;
   top: 0;
   z-index: 1;
@@ -182,22 +189,30 @@ const Header = styled.div`
 
 const SearchBar = styled.div`
   display: flex;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-around;
+  position: absolute;
+  left: 0;
+  top: 0;
+
 `
 const Search = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 564px;
+  position: relative;
+  padding-top: 40px;
+
 `
 
 const SearchMenu = styled.ul`
   width: 564px;
-  padding-top: 20px;
   border-radius: 8px;
   background-color: #E7E7E7;
-  position: fixed;
-  left: 371px;
-  top: 46px;
+  position: absolute;
+  left: 0;
+  top: 0;
   z-index: -1;
 
   li{
