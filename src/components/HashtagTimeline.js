@@ -40,7 +40,7 @@ export default function HashtagTimeline(){
       useEffect(() => {
         setIsLoading(true);
         fetchPosts();
-      }, []);
+      }, [hashtag]);
     
       function RenderPosts() {
         return publications[0].map((publi) => (
@@ -69,9 +69,9 @@ export default function HashtagTimeline(){
         } else {
           return (
             <>
-              <UserInfo>
+              <Hashtag>
                 <Title>{"#  " + publications[1]}</Title>
-              </UserInfo>
+              </Hashtag>
               <RenderPosts />
             </>
           );
@@ -104,7 +104,7 @@ export default function HashtagTimeline(){
       justify-content: center;
     `;
     
-    const UserInfo = styled.div`
+    const Hashtag = styled.div`
       margin-top: 125px;
       margin-bottom: 37px;
       display: flex;

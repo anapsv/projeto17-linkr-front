@@ -2,8 +2,10 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import { useUserData } from "../contexts/UserDataContext";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Trendings() {
+  const navigate = useNavigate();
   const [{ token }] = useUserData();
   const [hashtags, setHashtags] = useState([])
   const [isLoading, setIsLoading] = useState(false);
@@ -36,8 +38,8 @@ export default function Trendings() {
   }, []);
 
   function RenderHashtags(){
-    return hashtags.map((hashtag) => {
-      <p key={hashtag.id}>{"#  " + hashtag.name}</p>
+    return hashtags.map((hashtag, i = 0) => {
+      return <p key={i++} onClick={() => navigate(`/hashtag/${hashtag.hashtag}`)}>{"#  " + hashtag.hashtag}</p>
     })
   }
 
@@ -45,7 +47,7 @@ export default function Trendings() {
     if (isLoading) {
       return <p>Loading...</p>;
     }
-    if (!isLoading && hashtags.length === 0) {
+    if (hashtags.length === 0) {
       return <p>There are no hashtags yet</p>;
     } else {
       return (
@@ -59,11 +61,6 @@ export default function Trendings() {
       <h1>trending</h1>
       <Margin />
       <Loading/>
-      <p>#Javascript</p>
-      <p>#html</p>
-      <p>#css</p>
-      <p>#mobile</p>
-      <p>#sql</p>
     </Container>
   );
 }
@@ -90,7 +87,8 @@ const Container = styled.div`
     color: #ffffff;
     font-family: "Lato", sans-serif;
     margin-left: 15px;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
+    cursor: pointer;
   }
 `;
 

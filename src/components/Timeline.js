@@ -1,5 +1,4 @@
 import styled from "styled-components";
-
 import Top from "./Header";
 import Trendings from "./Trendings";
 import Posts from "./Posts";
