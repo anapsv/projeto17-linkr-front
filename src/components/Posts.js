@@ -178,30 +178,16 @@ export default function Posts(props) {
       })
   }
 
-  function getPeopleThatLiked () {
-    const nameIsMine = names.findIndex((item) => item === name);
-    let usersThatLiked = [];
-    if (nameIsMine !== -1 ) {
-      usersThatLiked = names.splice(nameIsMine, 1);
-      usersThatLiked.unshift('You')
+  function getLikesDescription () {
+    const usersThatLiked = isLike
+      ? names.map((likeName) => likeName === name ? 'You': likeName)
+      : names
+    const returnPhrase = {
+      [0]: `O people liked this post`,
+      [1]: `${usersThatLiked[0]} liked this post`,
+      [2]: `${usersThatLiked[0]}, ${usersThatLiked[1]} liked this post`
     }
-    else {
-      usersThatLiked = names;
-    }
-    console.log(count);
-    console.log(usersThatLiked)
-    if (count === 2) {
-      return `${usersThatLiked[0]}, ${usersThatLiked[1]} liked this post`
-    }
-    else if (count === 1) {
-      return `${usersThatLiked[0]} liked this post`
-    }
-    else if (count === 0 ) {
-      return `0 people liked this post`
-    }
-    else {
-      return `${usersThatLiked[0]}, ${usersThatLiked[1]} and ${count -2} liked this post`
-    }
+    return returnPhrase[usersThatLiked.length] || `${usersThatLiked[0]}, ${usersThatLiked[1]} and ${count - 2} liked this post`
   }
 
 
@@ -219,7 +205,7 @@ export default function Posts(props) {
             <FaRegHeart onClick={() => handleLike(props.id)} />
           </IconContext.Provider>
         )}
-        <p data-tip={getPeopleThatLiked()} data-iscapture="true" currentItem={true}> { count > 0 ? `${count} likes` : `0 likes` } </p>
+        <p data-tip={getLikesDescription()} data-iscapture="true" currentItem={true}> { count > 0 ? `${count} likes` : `0 likes` } </p>
           <ReactTooltip place="bottom" type="light" />
       </LikeSection>
       <ContentSection>

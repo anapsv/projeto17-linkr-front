@@ -7,11 +7,14 @@ import Posts from "./Posts";
 import Top from "./Header";
 import styled from "styled-components";
 import { APIHost } from "../config/config";
+import FollowButton from './FollowButton';
 
 export default function UserTimeline() {
   const [{ token }] = useUserData();
   const [publications, setPublications] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [followed, setFollowed] = useState(false);
+
 
   const { id } = useParams();
 
@@ -41,7 +44,8 @@ export default function UserTimeline() {
   useEffect(() => {
     setIsLoading(true);
     fetchPosts();
-  }, [id]);
+    if (token && id) checkIfUserFollows();
+  }, [id, token]);
 
   function RenderPosts() {
     return publications.map((publi) => (
@@ -61,6 +65,28 @@ export default function UserTimeline() {
     ));
   }
 
+  function checkIfUserFollows () {
+    const promise = axios({
+      url: `${APIHost}followers`,
+      method: 'get',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      params: { userPageId: id}
+    });
+    promise.then((res) => {
+      console.log(res.data);
+      if (res.data === true) {
+        setFollowed(true);
+      } if (res.data === false) {
+        setFollowed(false);
+      }
+    })
+    promise.catch((err) => {
+      
+    })
+  }
+
   function Loading() {
     if (isLoading) {
       return <p>Loading...</p>;
@@ -71,14 +97,20 @@ export default function UserTimeline() {
       return (
         <>
           <UserInfo>
-            <ProfileImage src={publications[0].profilePic} />
-            <Title>{publications[0].username + "'s posts"}</Title>
+            <div>
+              <ProfileImage src={publications[0].profilePic} />
+              <Title>{publications[0].username + "'s posts"}</Title>
+            </div>
+            <div>
+              <FollowButton id={id} followed={followed} setFollowed={setFollowed} />
+            </div>
           </UserInfo>
           <RenderPosts />
         </>
       );
     }
   }
+
 
   return (
     <Container>
@@ -111,6 +143,11 @@ const UserInfo = styled.div`
   margin-bottom: 37px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+
+  > div {
+    display: flex;
+  }
 `;
 
 const Title = styled.div`
