@@ -3,29 +3,37 @@ import Top from "./Header";
 import Trendings from "./Trendings";
 import Posts from "./Posts";
 import NewPost from "./NewPost";
+import NewPostsOnServer from "./NewPostsOnServer";
 import { useUserData } from "../contexts/UserDataContext";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { APIHost } from "../config/config";
+import useInterval from "use-interval";
 
 export default function Timeline() {
   const [{ token }] = useUserData();
   const [publications, setPublications] = useState([]);
   console.log(publications);
+  const [countNewPublications, setCountNewPublications] = useState(0);
+  const [lastPublicationId, setLastPublicationId] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  console.log(lastPublicationId);
+  console.log(countNewPublications);
 
-  async function fetchPosts() {
+  const auth = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  function fetchPosts() {
     const url = APIHost + `timeline`;
-    const auth = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
 
     axios
       .get(url, auth)
       .then((res) => {
         setIsLoading(false);
+        setLastPublicationId(res.data[0].id);
         setPublications(res.data);
       })
       .catch((error) => {
@@ -41,6 +49,22 @@ export default function Timeline() {
     setIsLoading(true);
     fetchPosts();
   }, []);
+
+  useInterval(() => {
+    const url = APIHost + `timeline/${lastPublicationId}`;
+
+    axios
+      .get(url, auth)
+      .then((res) => {
+        setCountNewPublications(Number(res.data[0].count));
+      })
+      .catch((error) => {
+        alert("An error occured, please refresh the page");
+        console.log(error.data);
+      });
+    // Your custom logic here
+    //setCount(count + 1);
+  }, 15000);
 
   function RenderPosts() {
     return publications.map((publi) => (
@@ -78,6 +102,15 @@ export default function Timeline() {
         <PostsContainer>
           <Title>timeline</Title>
           <NewPost fetchPosts={fetchPosts} />
+          {countNewPublications === 0 ? (
+            ""
+          ) : (
+            <NewPostsOnServer
+              fetchPosts={fetchPosts}
+              countNewPublications={countNewPublications}
+              setCountNewPublications={setCountNewPublications}
+            />
+          )}
           <Loading />
         </PostsContainer>
         <Trendings />
