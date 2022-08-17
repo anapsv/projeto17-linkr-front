@@ -33,25 +33,25 @@ export default function NewPost({ fetchPosts }) {
   return (
     <Container>
       <ProfilePic>
-        <img src={ profilePic } />
+        <img src={profilePic} />
       </ProfilePic>
-      <Form onSubmit={ publishNewPost }>
+      <Form onSubmit={publishNewPost}>
         <h3>What are you going to share today?</h3>
         <input
           placeholder="http://..."
           type="url"
           required
-          value={ link }
-          onChange={ (e) => setLink(e.target.value) }
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
         />
         <textarea
           placeholder="Awesome article about #javascript"
           type="text"
-          value={ description }
-          onChange={ (e) => setDescription(e.target.value) }
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         />
-        <Button type="submit" disabled={ loading }>
-          { loading ? "Publishing..." : "Publish" }
+        <Button type="submit" disabled={loading}>
+          {loading ? "Publishing..." : "Publish"}
         </Button>
       </Form>
     </Container>

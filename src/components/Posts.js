@@ -9,7 +9,7 @@ import { TiPencil } from "react-icons/ti";
 import Modal from "react-modal";
 import { ThreeDots } from "react-loader-spinner";
 import { useNavigate, useResolvedPath } from "react-router-dom";
-import ReactTooltip from 'react-tooltip';
+import ReactTooltip from "react-tooltip";
 import { ReactTagify } from "react-tagify";
 import { APIHost } from "../config/config";
 
@@ -23,8 +23,8 @@ export default function Posts(props) {
   const [loading, setLoading] = useState(false);
   const [enterPress, setEnterPress] = useState(false);
   const [isLike, setIsLike] = useState(false);
-  const [ count, setCount ] = useState(0);
-  const [ names, setNames ] = useState([]);
+  const [count, setCount] = useState(0);
+  const [names, setNames] = useState([]);
 
   const auth = {
     headers: {
@@ -161,7 +161,7 @@ export default function Posts(props) {
     }
   }
 
-  function goToHashtag(tag){
+  function goToHashtag(tag) {
     navigate(`/hashtag/${tag.replace("#", "")}`);
   }
 
@@ -170,12 +170,12 @@ export default function Posts(props) {
     axios
       .get(url, auth)
       .then((res) => {
-        setCount(res.data.numberOfLikes);       
+        setCount(res.data.numberOfLikes);
         setNames(res.data.peopleLiked.map((item) => item.name));
       })
       .catch((error) => {
         //console.log(error);
-      })
+      });
   }
 
   function getLikesDescription () {
@@ -189,8 +189,6 @@ export default function Posts(props) {
     }
     return returnPhrase[usersThatLiked.length] || `${usersThatLiked[0]}, ${usersThatLiked[1]} and ${count - 2} liked this post`
   }
-
-
 
   return (
     <Container>
@@ -266,18 +264,26 @@ export default function Posts(props) {
             defaultValue={props.description}
           ></TextArea>
         ) : (
-            <h2>
-              <ReactTagify tagStyle={{ color: '#FFFFFF', fontFamily: 'Lato', fontWeight: 700, cursor: 'pointer' }} tagClicked={(tag) => goToHashtag(tag)}>
-                {props.description} 
-              </ReactTagify>
-            </h2>
+          <h2>
+            <ReactTagify
+              tagStyle={{
+                color: "#FFFFFF",
+                fontFamily: "Lato",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+              tagClicked={(tag) => goToHashtag(tag)}
+            >
+              {props.description}
+            </ReactTagify>
+          </h2>
         )}
         <LinkMetadata href={props.link} target="_blank">
           <LinkInformation>
             <LinkTitle>{props.urlTitle}</LinkTitle>
-            
-              <LinkDescription>{props.urlDescription}</LinkDescription>
-            
+
+            <LinkDescription>{props.urlDescription}</LinkDescription>
+
             <LinkUrl>{props.link}</LinkUrl>
           </LinkInformation>
           <LinkImage src={props.urlImage} />
