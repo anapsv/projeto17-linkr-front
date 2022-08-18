@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserData, deleteUserDataInLocalStorage } from "../contexts/UserDataContext";
 import axios from "axios";
@@ -10,29 +10,16 @@ import { DebounceInput } from "react-debounce-input";
 import { APIHost } from '../config/config';
 
 export default function Top() {
-  const [{ name, profilePic, token }, setUserData] = useUserData();
+  const [{ profilePic, token }, setUserData] = useUserData();
   const [menuDisplay, setMenuDisplay] = React.useState(false);
   const [searchDisplay, setSearchDisplay] = React.useState(false);
   const [users, setUsers] = React.useState([])
   const [nameSearch, setNameSearch] = React.useState("");
   const navigate = useNavigate();
+  const [following, setFollowing] = useState([]);
 
   function onSearch(){
     setSearchDisplay(true);
-  }
-
-  function RenderSearchs(){
-    if(users.length > 0){
-      return users.map((user)=>{
-        return(
-          <li key={user.id} >
-            <img src={user.profilePic} alt="" onClick={()=>{goToUser(user.id)}}/>
-            <p onClick={()=>{goToUser(user.id)}}>{user.username} </p>
-          </li>
-        )
-      })
-    }
-    return (<li><IoIosSad style={{marginRight: "40px", color: "#707070"}}/>No users found!</li>)
   }
 
   function searchUser(e){
@@ -42,14 +29,35 @@ export default function Top() {
       },
     };
     const body = { nameSearch };
-    const requisition = axios.post(APIHost + `search`, body,  auth)
+    const requisition = axios.post(APIHost + `search`, body, auth)
     requisition.then((res)=>{
-      setUsers(res.data);
+      setFollowing(res.data.following);
+      setUsers(res.data.users);
     })
     requisition.catch((error)=>{
       alert("Ocorreu um erro");
       console.log(error)
     })
+  }
+
+  function RenderSearchs(){
+    const allButFollowers = users.filter(({ username: id1 }) => !following.some(({ username: id2 }) => id2 === id1));
+    const searchedUsers = following.concat(allButFollowers);
+    if(searchedUsers.length > 0){
+      return searchedUsers.map((user)=>{
+        return(
+          <li key={user.id} >
+            <img src={user.profilePic} alt="" onClick={()=>{goToUser(user.id)}}/>
+            <p onClick={()=>{goToUser(user.id)}}>{user.username} </p>
+            {
+              user.isFollowing === null ? null
+              :  <h6> • following </h6>
+            }
+          </li>
+        )
+      })
+    }
+    return (<li><IoIosSad style={{marginRight: "40px", color: "#707070"}}/>No users found!</li>)
   }
   
   useEffect((nameSearch) =>{
@@ -230,6 +238,16 @@ const SearchMenu = styled.ul`
       font-size: 24px;
       line-height: 23px;
       color: #515151;
+    }
+
+    h6 {
+      font-family: 'Lato';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 23px;
+      color: #c5c5c5;
+      margin-left: 10px;
     }
   }
 `
