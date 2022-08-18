@@ -15,7 +15,7 @@ export default function NewPostsOnServer({
     <Container>
       <p>{countNewPublications} new posts, load more!</p>
       <IconContext.Provider value={{ color: "white", size: "1.5em" }}>
-        <BiRefresh onClick={() => refresh()} />
+        <BiRefresh onClick={refresh} />
       </IconContext.Provider>
     </Container>
   );

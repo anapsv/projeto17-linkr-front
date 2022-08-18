@@ -1,33 +1,17 @@
-import axios from "axios";
-import { useState } from "react";
 import styled from "styled-components";
 import { useUserData } from "../contexts/UserDataContext";
-import { APIHost } from "../config/config";
+import { useState } from "react";
 
-export default function NewPost({ fetchPosts }) {
-  const [loading, setLoading] = useState(false);
-  const [{ profilePic, token }] = useUserData();
+export default function NewPost({ createNewPost, isCreatingPostLoading }) {
+  const [{ profilePic }] = useUserData();
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
 
   function publishNewPost(e) {
     e.preventDefault();
-    setLoading(true);
-    const promise = axios.post(
-      APIHost + `publish`,
-      { link: link, description: description },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    promise.then((res) => {
-      setLoading(false);
-      setLink("");
-      setDescription("");
-      fetchPosts();
-    });
-    promise.catch((err) => {
-      setLoading(false);
-      alert("Houve um erro ao publicar seu link.");
-    });
+    createNewPost(link, description);
+    setDescription("");
+    setLink("");
   }
 
   return (
@@ -50,8 +34,8 @@ export default function NewPost({ fetchPosts }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <Button type="submit" disabled={loading}>
-          {loading ? "Publishing..." : "Publish"}
+        <Button type="submit" disabled={isCreatingPostLoading}>
+          {isCreatingPostLoading ? "Publishing..." : "Publish"}
         </Button>
       </Form>
     </Container>
