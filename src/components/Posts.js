@@ -75,7 +75,7 @@ export default function Posts(props) {
         auth
       );
       promise.then((res) => {
-        props.fetchPosts();
+        props.fetchUpdatedPosts();
         setEnterPress(false);
       });
       promise.catch((err) => {
@@ -104,7 +104,7 @@ export default function Posts(props) {
     });
     promise.then((res) => {
       setLoading(false);
-      props.fetchPosts();
+      props.fetchUpdatedPosts();
       setIsOpen(false);
     });
     promise.catch((err) => {
