@@ -19,6 +19,7 @@ export default function Timeline() {
   const [isLoading, setIsLoading] = useState(false);
   console.log(lastPublicationId);
   console.log(countNewPublications);
+  const [checkFollowing, setCheckFollowing] = useState(false);
 
   const auth = {
     headers: {
@@ -32,6 +33,7 @@ export default function Timeline() {
     axios
       .get(url, auth)
       .then((res) => {
+        console.log(res.data);
         setIsLoading(false);
         setLastPublicationId(res.data[0].id);
         setPublications(res.data);
@@ -42,6 +44,18 @@ export default function Timeline() {
           "An error occured while trying to fetch the posts, please refresh the page"
         );
         console.log(error.data);
+      });
+  }
+
+  function checkIfUserFollows () {
+    const url = APIHost + `following`;
+    axios
+      .get(url, auth)
+      .then((res) => {
+        setCheckFollowing(res.data);
+      })
+      .catch((error) => {
+        console.log(error);
       });
   }
 
@@ -88,9 +102,12 @@ export default function Timeline() {
     if (isLoading) {
       return <p>Loading...</p>;
     }
-    if (!isLoading && publications.length === 0) {
-      return <p>There are no posts yes</p>;
-    } else {
+    if (!isLoading && publications.length === 1 && checkFollowing === true) {
+      return <p>No posts found from your friends</p>;
+    } if (!isLoading && publications.length === 1 && checkFollowing === false ) {
+      return <p>You don't follow anyone yet. <br /> Search for new friends!</p>;  
+    }    
+    else {
       return <RenderPosts />;
     }
   }
