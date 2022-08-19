@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { APIHost } from "../config/config";
 import useInterval from "use-interval";
-import Loading from "./Loader";
+import Loading from './Loader';
 
 export default function Timeline() {
   const [{ token }] = useUserData();
@@ -21,6 +21,7 @@ export default function Timeline() {
   const [page, setPage] = useState(0);
   const [isCreatingPostLoading, setIsCreatingPostLoading] = useState(false);
   const [isFetchPostsLoading, setIsFetchPostsLoading] = useState(false);
+  const [checkFollowing, setCheckFollowing] = useState(false);
 
   const auth = {
     headers: {
@@ -52,6 +53,18 @@ export default function Timeline() {
         );
         setIsFetchPostsLoading(false);
         console.log(error.data);
+      });
+  }
+
+  function checkIfUserFollows () {
+    const url = APIHost + `following`;
+    axios
+      .get(url, auth)
+      .then((res) => {
+        setCheckFollowing(res.data);
+      })
+      .catch((error) => {
+        console.log(error);
       });
   }
 
@@ -89,6 +102,20 @@ export default function Timeline() {
         console.log(error.data);
       });
   }, 15000);
+
+  // function Loading() {
+  //   if (isLoading) {
+  //     return <p>Loading...</p>;
+  //   }
+  //   if (!isLoading && publications.length === 1 && checkFollowing === true) {
+  //     return <p>No posts found from your friends</p>;
+  //   } if (!isLoading && publications.length === 1 && checkFollowing === false ) {
+  //     return <p>You don't follow anyone yet. <br /> Search for new friends!</p>;  
+  //   }    
+  //   else {
+  //     return <RenderPosts />;
+  //   }
+  // }
 
   return (
     <>
