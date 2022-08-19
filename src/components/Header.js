@@ -43,6 +43,7 @@ export default function Top() {
   function RenderSearchs(){
     const allButFollowers = users.filter(({ username: id1 }) => !following.some(({ username: id2 }) => id2 === id1));
     const searchedUsers = following.concat(allButFollowers);
+    console.log(searchedUsers);
     if(searchedUsers.length > 0){
       return searchedUsers.map((user)=>{
         return(

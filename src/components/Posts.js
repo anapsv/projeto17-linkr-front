@@ -80,7 +80,7 @@ export default function Posts(props) {
         auth
       );
       promise.then((res) => {
-        props.fetchPosts();
+        props.fetchUpdatedPosts();
         setEnterPress(false);
       });
       promise.catch((err) => {
@@ -109,7 +109,7 @@ export default function Posts(props) {
     });
     promise.then((res) => {
       setLoading(false);
-      props.fetchPosts();
+      props.fetchUpdatedPosts();
       setIsOpen(false);
     });
     promise.catch((err) => {
@@ -216,19 +216,19 @@ export default function Posts(props) {
 
   return (
     <>
-      <Container>
-        <LikeSection>
-          <img src={ props.profilePic } alt="profilePic" />
-          { isLike ? (
-            <IconContext.Provider value={ { color: "red", size: "1.5em" } }>
-              <FaHeart onClick={ () => handleLike(props.id) } />
-            </IconContext.Provider>
-          ) : (
-            <IconContext.Provider value={ { color: "white", size: "1.5em" } }>
-              <FaRegHeart onClick={ () => handleLike(props.id) } />
-            </IconContext.Provider>
-          ) }
-          <p data-tip={ getLikesDescription() } data-iscapture="true" currentItem={ true }> { count > 0 ? `${count} likes` : `0 likes` } </p>
+    <Container>
+      <LikeSection>
+        <img src={props.profilePic} alt="profilePic" />
+        {isLike ? (
+          <IconContext.Provider value={{ color: "red", size: "1.5em" }}>
+            <FaHeart onClick={() => handleLike(props.id)} />
+          </IconContext.Provider>
+        ) : (
+          <IconContext.Provider value={{ color: "white", size: "1.5em" }}>
+            <FaRegHeart onClick={() => handleLike(props.id)} />
+          </IconContext.Provider>
+        )}
+        <p data-tip={getLikesDescription()} data-iscapture="true" currentitem='true'> { count > 0 ? `${count} likes` : `0 likes` } </p>
           <ReactTooltip place="bottom" type="light" />
           <IconContext.Provider value={ { color: "white", size: "1.8em", style: { marginTop: "18px" } } } >
             <AiOutlineComment onClick={ () => setShowComments(!showComments) } />
