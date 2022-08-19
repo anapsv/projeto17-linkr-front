@@ -130,8 +130,8 @@ export default function Posts(props) {
   }
 
   useEffect(() => {
-    getLikes(props.publicationId);
-    getAllLikes(props.publicationId);
+    getLikes(props.id);
+    getAllLikes(props.id);
   }, [props.id]);
 
   function handleLike(publicationId) {
