@@ -12,19 +12,24 @@ import { useNavigate, useResolvedPath } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import { ReactTagify } from "react-tagify";
 import { APIHost } from "../config/config";
+import { fetchComments } from "../services/comments";
+import { AiOutlineComment } from "react-icons/ai";
+import Comments from "./Comments";
 
 export default function Posts(props) {
   const navigate = useNavigate();
   const [edit, setEdit] = useState(false);
   const [textArea, setTextArea] = useState(false);
   const textareaRef = useRef("");
-  const [{ token, userId, name }] = useUserData();
+  const [{ token, userId, name, profilePic }] = useUserData();
   const [modalIsOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [enterPress, setEnterPress] = useState(false);
   const [isLike, setIsLike] = useState(false);
   const [count, setCount] = useState(0);
   const [names, setNames] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [showComments, setShowComments] = useState(false);
 
   const auth = {
     headers: {
@@ -142,7 +147,7 @@ export default function Posts(props) {
 
       axios
         .delete(url, auth)
-        .then((res) => {})
+        .then((res) => { })
         .catch((error) => {
           console.log(error.data);
           setIsLike(true);
@@ -153,7 +158,7 @@ export default function Posts(props) {
 
       axios
         .post(url, body, auth)
-        .then((res) => {})
+        .then((res) => { })
         .catch((error) => {
           console.log(error.data);
           setIsLike(false);
@@ -178,9 +183,9 @@ export default function Posts(props) {
       });
   }
 
-  function getLikesDescription () {
+  function getLikesDescription() {
     const usersThatLiked = isLike
-      ? names.map((likeName) => likeName === name ? 'You': likeName)
+      ? names.map((likeName) => likeName === name ? 'You' : likeName)
       : names
     const returnPhrase = {
       [0]: `O people liked this post`,
@@ -190,7 +195,27 @@ export default function Posts(props) {
     return returnPhrase[usersThatLiked.length] || `${usersThatLiked[0]}, ${usersThatLiked[1]} and ${count - 2} liked this post`
   }
 
+  //COMENTÁRIOS
+
+  useEffect(() => {
+
+    async function getComments() {
+      const response = await fetchComments(props.id, auth);
+
+      if (response) {
+        setComments(response);
+
+      } else {
+        alert("Houve um erro ao buscar comentários. Recarregue a página");
+      }
+    }
+
+    getComments();
+
+  }, [props]);
+
   return (
+    <>
     <Container>
       <LikeSection>
         <img src={props.profilePic} alt="profilePic" />
@@ -205,91 +230,96 @@ export default function Posts(props) {
         )}
         <p data-tip={getLikesDescription()} data-iscapture="true" currentitem='true'> { count > 0 ? `${count} likes` : `0 likes` } </p>
           <ReactTooltip place="bottom" type="light" />
-      </LikeSection>
-      <ContentSection>
-        <TopPost>
-          <h1 onClick={() => navigate("/user/" + props.userId)}>
-            {props.username}
-          </h1>
-          {props.userId === userId ? (
-            <div>
-              <TiPencil
-                onClick={() => updatePostById(props.id)}
-                color={"#ffffff"}
-                title={TiPencil}
-                height="16px"
-                width="16px"
-                onKeyDown={handleEscPress}
-                onKeyPress={handleEnterPress}
-              />
-              <CgTrashEmpty
-                onClick={openModal}
-                color={"#ffffff"}
-                title={CgTrashEmpty}
-                height="16px"
-                width="16px"
-              />
-            </div>
-          ) : null}
-        </TopPost>
-        <Modal
-          isOpen={modalIsOpen}
-          ariaHideApp={false}
-          onRequestClose={closeModal}
-          className="Modal"
-          overlayClassName="Overlay"
-        >
-          {loading ? (
-            <Loading>
-              <ThreeDots color="#FFFFFF" width={50} />
-            </Loading>
+          <IconContext.Provider value={ { color: "white", size: "1.8em", style: { marginTop: "18px" } } } >
+            <AiOutlineComment onClick={ () => setShowComments(!showComments) } />
+          </IconContext.Provider>
+        </LikeSection>
+        <ContentSection>
+          <TopPost>
+            <h1 onClick={ () => navigate("/user/" + props.userId) }>
+              { props.username }
+            </h1>
+            { props.userId === userId ? (
+              <div>
+                <TiPencil
+                  onClick={ () => updatePostById(props.id) }
+                  color={ "#ffffff" }
+                  title={ TiPencil }
+                  height="16px"
+                  width="16px"
+                  onKeyDown={ handleEscPress }
+                  onKeyPress={ handleEnterPress }
+                />
+                <CgTrashEmpty
+                  onClick={ openModal }
+                  color={ "#ffffff" }
+                  title={ CgTrashEmpty }
+                  height="16px"
+                  width="16px"
+                />
+              </div>
+            ) : null }
+          </TopPost>
+          <Modal
+            isOpen={ modalIsOpen }
+            ariaHideApp={ false }
+            onRequestClose={ closeModal }
+            className="Modal"
+            overlayClassName="Overlay"
+          >
+            { loading ? (
+              <Loading>
+                <ThreeDots color="#FFFFFF" width={ 50 } />
+              </Loading>
+            ) : (
+              <>
+                <Text>Are you sure you want to delete this post?</Text>
+                <ButtonDiv>
+                  <Cancel onClick={ closeModal }>No, go back</Cancel>
+                  <Send onClick={ () => deletePostById(props.id) }>
+                    Yes, delete it
+                  </Send>
+                </ButtonDiv>
+              </>
+            ) }
+          </Modal>
+          { textArea ? (
+            <TextArea
+              bg={ true }
+              type="text"
+              ref={ textareaRef }
+              onKeyPress={ handleEnterPress }
+              defaultValue={ props.description }
+            ></TextArea>
           ) : (
-            <>
-              <Text>Are you sure you want to delete this post?</Text>
-              <ButtonDiv>
-                <Cancel onClick={closeModal}>No, go back</Cancel>
-                <Send onClick={() => deletePostById(props.id)}>
-                  Yes, delete it
-                </Send>
-              </ButtonDiv>
-            </>
-          )}
-        </Modal>
-        {textArea ? (
-          <TextArea
-            bg={true}
-            type="text"
-            ref={textareaRef}
-            onKeyPress={handleEnterPress}
-            defaultValue={props.description}
-          ></TextArea>
-        ) : (
-          <h2>
-            <ReactTagify
-              tagStyle={{
-                color: "#FFFFFF",
-                fontFamily: "Lato",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-              tagClicked={(tag) => goToHashtag(tag)}
-            >
-              {props.description}
-            </ReactTagify>
-          </h2>
-        )}
-        <LinkMetadata href={props.link} target="_blank">
-          <LinkInformation>
-            <LinkTitle>{props.urlTitle}</LinkTitle>
+            <h2>
+              <ReactTagify
+                tagStyle={ {
+                  color: "#FFFFFF",
+                  fontFamily: "Lato",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                } }
+                tagClicked={ (tag) => goToHashtag(tag) }
+              >
+                { props.description }
+              </ReactTagify>
+            </h2>
+          ) }
+          <LinkMetadata href={ props.link } target="_blank">
+            <LinkInformation>
+              <LinkTitle>{ props.urlTitle }</LinkTitle>
 
-            <LinkDescription>{props.urlDescription}</LinkDescription>
+              <LinkDescription>{ props.urlDescription }</LinkDescription>
 
-            <LinkUrl>{props.link}</LinkUrl>
-          </LinkInformation>
-          <LinkImage src={props.urlImage} />
-        </LinkMetadata>
-      </ContentSection>
-    </Container>
+              <LinkUrl>{ props.link }</LinkUrl>
+            </LinkInformation>
+            <LinkImage src={ props.urlImage } />
+          </LinkMetadata>
+        </ContentSection>
+      </Container>
+      { showComments ? <Comments display={ true } id={ props.id } postComments={ comments } userId={ props.userId } profilePic={ profilePic } /> : null }
+    </>
   );
 }
 
@@ -298,7 +328,7 @@ const Container = styled.div`
   height: auto;
   background: #171717;
   border-radius: 16px;
-  margin-bottom: 16px;
+  margin-top: 16px;
   padding: 20px;
   display: flex;
   position: relative;
