@@ -26,6 +26,8 @@ export default function UserTimeline() {
       },
     };
 
+    console.log(id);
+
     axios
       .get(url, auth)
       .then((res) => {

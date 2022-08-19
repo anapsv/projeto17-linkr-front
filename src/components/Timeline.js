@@ -151,7 +151,7 @@ export default function Timeline() {
             {publications.map((publi) => (
               <Posts
                 key={publi.id}
-                id={publi.id}
+                id={publi.publicationId}
                 description={publi.description}
                 link={publi.link}
                 profilePic={publi.profilePic}
