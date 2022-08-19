@@ -39,7 +39,7 @@ export default function Timeline() {
     axios
       .get(url, auth)
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         if (res.data.length < 10) { 
           setHasMore(false);
         }

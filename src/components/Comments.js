@@ -13,6 +13,8 @@ function SingleComment({ comment, userId }) {
         navigate(`/user/${comment.userId}`);
     }
 
+    // console.log(comment);
+
     return (
         <CommentContent>
             <img src={ comment.profilePic } alt='user' />
