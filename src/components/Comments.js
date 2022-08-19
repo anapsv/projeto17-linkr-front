@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 function SingleComment({ comment, userId }) {
     const navigate = useNavigate();
+    const [followStatus, setFollowStatus] = useState('');
 
     function redirectUser() {
         navigate(`/user/${comment.userId}`);
