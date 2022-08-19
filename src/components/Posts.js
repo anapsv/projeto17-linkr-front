@@ -114,8 +114,8 @@ export default function Posts(props) {
     });
   }
 
-  function getLikes(id) {
-    const url = APIHost + `likeGet/${id}`;
+  function getLikes(publicationId) {
+    const url = APIHost + `likeGet/${publicationId}`;
 
     axios
       .get(url, auth)
@@ -130,8 +130,8 @@ export default function Posts(props) {
   }
 
   useEffect(() => {
-    getLikes(props.id);
-    getAllLikes(props.id);
+    getLikes(props.publicationId);
+    getAllLikes(props.publicationId);
   }, [props.id]);
 
   function handleLike(publicationId) {
@@ -149,7 +149,7 @@ export default function Posts(props) {
         });
     } else {
       const url = APIHost + `likePost/${publicationId}`;
-      const body = {};
+      const body = { publicationId: publicationId};
 
       axios
         .post(url, body, auth)
@@ -165,8 +165,8 @@ export default function Posts(props) {
     navigate(`/hashtag/${tag.replace("#", "")}`);
   }
 
-  function getAllLikes(id) {
-    const url = APIHost + `allLikes/${id}`;
+  function getAllLikes(publicationId) {
+    const url = APIHost + `allLikes/${publicationId}`;
     axios
       .get(url, auth)
       .then((res) => {
@@ -196,11 +196,11 @@ export default function Posts(props) {
         <img src={props.profilePic} alt="profilePic" />
         {isLike ? (
           <IconContext.Provider value={{ color: "red", size: "1.5em" }}>
-            <FaHeart onClick={() => handleLike(props.id)} />
+            <FaHeart onClick={() => handleLike(props.publicationId)} />
           </IconContext.Provider>
         ) : (
           <IconContext.Provider value={{ color: "white", size: "1.5em" }}>
-            <FaRegHeart onClick={() => handleLike(props.id)} />
+            <FaRegHeart onClick={() => handleLike(props.publicationId)} />
           </IconContext.Provider>
         )}
         <p data-tip={getLikesDescription()} data-iscapture="true" currentitem='true'> { count > 0 ? `${count} likes` : `0 likes` } </p>

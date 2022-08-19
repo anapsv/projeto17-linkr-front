@@ -39,6 +39,7 @@ export default function Timeline() {
     axios
       .get(url, auth)
       .then((res) => {
+        console.log(res.data)
         setLastPublicationId(res.data[0].id);
         setPublications([...publications, ...res.data]);
         setPage(page + 1);
@@ -161,6 +162,7 @@ export default function Timeline() {
                 urlTitle={publi.urlTitle}
                 page={page}
                 fetchUpdatedPosts={fetchUpdatedPosts}
+                publicationId={publi.publicationId}
               />
             ))}
           </InfiniteScroll>
