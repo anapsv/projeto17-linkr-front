@@ -4,21 +4,23 @@ import Trendings from "./Trendings";
 import Posts from "./Posts";
 import NewPost from "./NewPost";
 import NewPostsOnServer from "./NewPostsOnServer";
+import InfiniteScroll from "react-infinite-scroller";
 import { useUserData } from "../contexts/UserDataContext";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { APIHost } from "../config/config";
 import useInterval from "use-interval";
+import Loading from './Loader';
 
 export default function Timeline() {
   const [{ token }] = useUserData();
   const [publications, setPublications] = useState([]);
-  console.log(publications);
   const [countNewPublications, setCountNewPublications] = useState(0);
   const [lastPublicationId, setLastPublicationId] = useState();
-  const [isLoading, setIsLoading] = useState(false);
-  console.log(lastPublicationId);
-  console.log(countNewPublications);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
+  const [isCreatingPostLoading, setIsCreatingPostLoading] = useState(false);
+  const [isFetchPostsLoading, setIsFetchPostsLoading] = useState(false);
   const [checkFollowing, setCheckFollowing] = useState(false);
 
   const auth = {
@@ -28,21 +30,28 @@ export default function Timeline() {
   };
 
   function fetchPosts() {
-    const url = APIHost + `timeline`;
+    if (isFetchPostsLoading) return;
+
+    setIsFetchPostsLoading(true);
+
+    const url = APIHost + `timeline/${page}`;
 
     axios
       .get(url, auth)
       .then((res) => {
-        console.log(res.data);
-        setIsLoading(false);
         setLastPublicationId(res.data[0].id);
-        setPublications(res.data);
+        setPublications([...publications, ...res.data]);
+        setPage(page + 1);
+        setIsFetchPostsLoading(false);
+        if (res.data.length < 10) {
+          setHasMore(false);
+        }
       })
       .catch((error) => {
-        setIsLoading(false);
         alert(
           "An error occured while trying to fetch the posts, please refresh the page"
         );
+        setIsFetchPostsLoading(false);
         console.log(error.data);
       });
   }
@@ -59,13 +68,29 @@ export default function Timeline() {
       });
   }
 
-  useEffect(() => {
-    setIsLoading(true);
-    fetchPosts();
-  }, []);
+  async function createNewPost(link, description) {
+    setIsCreatingPostLoading(true);
+    try {
+      await axios.post(
+        APIHost + `publish`,
+        { link, description },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setIsCreatingPostLoading(false);
+      fetchUpdatedPosts();
+    } catch (e) {
+      setIsCreatingPostLoading(false);
+      alert("Houve um erro ao publicar seu link.");
+    }
+  }
+
+  function fetchUpdatedPosts() {
+    setPublications([]);
+    setPage(0);
+  }
 
   useInterval(() => {
-    const url = APIHost + `timeline/${lastPublicationId}`;
+    const url = APIHost + `countPublications/${lastPublicationId}`;
 
     axios
       .get(url, auth)
@@ -76,41 +101,21 @@ export default function Timeline() {
         alert("An error occured, please refresh the page");
         console.log(error.data);
       });
-    // Your custom logic here
-    //setCount(count + 1);
   }, 15000);
 
-  function RenderPosts() {
-    return publications.map((publi) => (
-      <Posts
-        key={publi.id}
-        id={publi.id}
-        description={publi.description}
-        link={publi.link}
-        profilePic={publi.profilePic}
-        username={publi.username}
-        userId={publi.userId}
-        urlDescription={publi.urlDescription}
-        urlImage={publi.urlImage}
-        urlTitle={publi.urlTitle}
-        fetchPosts={fetchPosts}
-      />
-    ));
-  }
-
-  function Loading() {
-    if (isLoading) {
-      return <p>Loading...</p>;
-    }
-    if (!isLoading && publications.length === 1 && checkFollowing === true) {
-      return <p>No posts found from your friends</p>;
-    } if (!isLoading && publications.length === 1 && checkFollowing === false ) {
-      return <p>You don't follow anyone yet. <br /> Search for new friends!</p>;  
-    }    
-    else {
-      return <RenderPosts />;
-    }
-  }
+  // function Loading() {
+  //   if (isLoading) {
+  //     return <p>Loading...</p>;
+  //   }
+  //   if (!isLoading && publications.length === 1 && checkFollowing === true) {
+  //     return <p>No posts found from your friends</p>;
+  //   } if (!isLoading && publications.length === 1 && checkFollowing === false ) {
+  //     return <p>You don't follow anyone yet. <br /> Search for new friends!</p>;  
+  //   }    
+  //   else {
+  //     return <RenderPosts />;
+  //   }
+  // }
 
   return (
     <>
@@ -118,17 +123,47 @@ export default function Timeline() {
       <TimelineContainer>
         <PostsContainer>
           <Title>timeline</Title>
-          <NewPost fetchPosts={fetchPosts} />
+          <NewPost
+            createNewPost={createNewPost}
+            isCreatingPostLoading={isCreatingPostLoading}
+          />
           {countNewPublications === 0 ? (
             ""
           ) : (
             <NewPostsOnServer
-              fetchPosts={fetchPosts}
+              fetchPosts={fetchUpdatedPosts}
               countNewPublications={countNewPublications}
               setCountNewPublications={setCountNewPublications}
             />
           )}
-          <Loading />
+          <InfiniteScroll
+            pageStart={0}
+            loadMore={fetchPosts}
+            hasMore={hasMore}
+            loader={
+              <Scroll>
+                <div>Loading more posts...</div>
+                <Loading />
+              </Scroll>
+            }
+          >
+            {publications.map((publi) => (
+              <Posts
+                key={publi.id}
+                id={publi.id}
+                description={publi.description}
+                link={publi.link}
+                profilePic={publi.profilePic}
+                username={publi.username}
+                userId={publi.userId}
+                urlDescription={publi.urlDescription}
+                urlImage={publi.urlImage}
+                urlTitle={publi.urlTitle}
+                page={page}
+                fetchUpdatedPosts={fetchUpdatedPosts}
+              />
+            ))}
+          </InfiniteScroll>
         </PostsContainer>
         <Trendings />
       </TimelineContainer>
@@ -172,4 +207,12 @@ const PostsContainer = styled.div`
     font-family: "Oswald", sans-serif;
     font-weight: bold;
   }
+`;
+
+const Scroll = styled.div`
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 22px;
+  color: #6d6d6d;
 `;

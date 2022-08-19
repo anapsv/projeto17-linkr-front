@@ -75,7 +75,7 @@ export default function Posts(props) {
         auth
       );
       promise.then((res) => {
-        props.fetchPosts();
+        props.fetchUpdatedPosts();
         setEnterPress(false);
       });
       promise.catch((err) => {
@@ -104,7 +104,7 @@ export default function Posts(props) {
     });
     promise.then((res) => {
       setLoading(false);
-      props.fetchPosts();
+      props.fetchUpdatedPosts();
       setIsOpen(false);
     });
     promise.catch((err) => {
@@ -203,7 +203,7 @@ export default function Posts(props) {
             <FaRegHeart onClick={() => handleLike(props.id)} />
           </IconContext.Provider>
         )}
-        <p data-tip={getLikesDescription()} data-iscapture="true" currentItem={true}> { count > 0 ? `${count} likes` : `0 likes` } </p>
+        <p data-tip={getLikesDescription()} data-iscapture="true" currentitem='true'> { count > 0 ? `${count} likes` : `0 likes` } </p>
           <ReactTooltip place="bottom" type="light" />
       </LikeSection>
       <ContentSection>
