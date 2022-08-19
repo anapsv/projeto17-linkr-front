@@ -68,13 +68,13 @@ export default function Posts(props) {
     }
   }, [edit]);
 
-  function updatePostById(publicationId) {
+  function updatePostById(id) {
     toggleEditing();
     if (enterPress) {
       const promise = axios.post(
         APIHost + `editpost`,
         {
-          publicationId,
+          id,
           description: textareaRef.current.value,
         },
         auth
@@ -99,12 +99,12 @@ export default function Posts(props) {
     setIsOpen(false);
   }
 
-  function deletePostById(publicationId) {
+  function deletePostById(id) {
     setLoading(true);
     const promise = axios.delete(APIHost + `deletepost`, {
       headers: auth.headers,
       data: {
-        publicationId,
+        id,
       },
     });
     promise.then((res) => {
@@ -119,8 +119,8 @@ export default function Posts(props) {
     });
   }
 
-  function getLikes(publicationId) {
-    const url = APIHost + `likeGet/${publicationId}`;
+  function getLikes(id) {
+    const url = APIHost + `likeGet/${id}`;
 
     axios
       .get(url, auth)
@@ -135,15 +135,15 @@ export default function Posts(props) {
   }
 
   useEffect(() => {
-    getLikes(props.publicationId);
-    getAllLikes(props.publicationId);
+    getLikes(props.id);
+    getAllLikes(props.id);
   }, [props.id]);
 
-  function handleLike(publicationId) {
+  function handleLike(id) {
     setIsLike(!isLike);
 
     if (isLike) {
-      const url = APIHost + `likeDelete/${publicationId}`;
+      const url = APIHost + `likeDelete/${id}`;
 
       axios
         .delete(url, auth)
@@ -153,8 +153,8 @@ export default function Posts(props) {
           setIsLike(true);
         });
     } else {
-      const url = APIHost + `likePost/${publicationId}`;
-      const body = { publicationId: publicationId };
+      const url = APIHost + `likePost/${id}`;
+      const body = { id: id };
 
       axios
         .post(url, body, auth)
@@ -170,8 +170,8 @@ export default function Posts(props) {
     navigate(`/hashtag/${tag.replace("#", "")}`);
   }
 
-  function getAllLikes(publicationId) {
-    const url = APIHost + `allLikes/${publicationId}`;
+  function getAllLikes(id) {
+    const url = APIHost + `allLikes/${id}`;
     axios
       .get(url, auth)
       .then((res) => {
@@ -219,11 +219,11 @@ export default function Posts(props) {
           <img src={ props.profilePic } alt="profilePic" />
           { isLike ? (
             <IconContext.Provider value={ { color: "red", size: "1.5em" } }>
-              <FaHeart onClick={ () => handleLike(props.publicationId) } />
+              <FaHeart onClick={ () => handleLike(props.id) } />
             </IconContext.Provider>
           ) : (
             <IconContext.Provider value={ { color: "white", size: "1.5em" } }>
-              <FaRegHeart onClick={ () => handleLike(props.publicationId) } />
+              <FaRegHeart onClick={ () => handleLike(props.id) } />
             </IconContext.Provider>
           ) }
           <p data-tip={ getLikesDescription() } data-iscapture="true" currentitem='true'> { count > 0 ? `${count} likes` : `0 likes` } </p>
